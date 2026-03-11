@@ -393,7 +393,7 @@
         } else if (type === 'Departure') {
             body += `Please organise transportation for ${id}'s ${crew} crews from the ${hotel} hotel to the airport at ${time} LCL. Please also forward the car/driver details when available.\n\n`;
         } else if (type === 'WSSL') {
-            body += `Please note the reporting time of the crew at WSSL is ${time} LCL. \n\nThank you for arranging the positioning of ${id} on the departure stand accordingly. End of day positioning prior to departure date is approved as necessary. \n\n`;
+            body += `Please note the reporting time of the crew at WSSL will be ${time} LCL on ${date}. \n\nThank you for arranging the positioning of ${id} on the departure stand accordingly. End of day positioning prior to departure date is approved as necessary. \n\n`;
         }
         if (document.getElementById('s-add-check').checked) {
             body += `Additional services needed will be: \n\n${document.getElementById('s-add-text').value}\n\n`;
