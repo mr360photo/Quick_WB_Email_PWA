@@ -182,8 +182,7 @@
             </div>
             <div class="output-line"><span>ZFW: <span id="out-zfw" class="out-val">--</span></span></div>
             <div class="output-line"><span>Rounded Average Pax Wt: <span id="out-round" class="out-bold">--</span></span></div>
-            <div class="output-line"><span>Adjusted Bag Weight: <span id="out-adj-bag" class="out-bold">--</span></span></div>
-        </div>
+			<div class="output-line"><span>Adjusted (initial) Bag Weight: <span id="out-adj-bag" class="out-bold">--</span> (<span id="out-initial-bag" class="out-bold">--</span>)</span></div>
     </div>
     <div id="tfp-form" class="content-section hidden">
         <div class="card">
@@ -327,6 +326,7 @@
         }
         document.getElementById('out-round').innerText = roundedWt;
         document.getElementById('out-adj-bag').innerText = correctedBag.toLocaleString();
+		document.getElementById('out-initial-bag').innerText = totalBagWt.toLocaleString();
         runGen();
     }
     function syncAndSave(field, value) {
