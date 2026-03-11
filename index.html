@@ -129,15 +129,17 @@
         .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
         
         .reset-btn { 
-            background: var(--danger-bg); 
-            color: var(--danger-text); 
-            border: 1px solid var(--danger-border); 
-            padding: 3px 8px; 
-            border-radius: 4px; 
-            font-size: 0.65rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            text-transform: uppercase;
+			background: var(--danger-bg); 
+			color: var(--danger-text); 
+			border: 1px solid var(--danger-border); 
+			padding: 3px 0; /* Vertical padding only, width is fixed below */
+			width: 85px;    /* Matches the payload input boxes */
+			border-radius: 4px; 
+			font-size: 0.65rem; 
+			font-weight: 700; 
+			cursor: pointer; 
+			text-transform: uppercase;
+			text-align: center;
         }
 
         .clear-btn-container {
