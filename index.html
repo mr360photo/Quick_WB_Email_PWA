@@ -120,7 +120,14 @@
             background: white;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
+		
+		.tab-icon {
+			font-size: 1.2em; /* Increases height relative to the text */
+			vertical-align: middle; /* Aligns it vertically with the text */
+			line-height: 1;
+			margin-left: 2px; /* Adds a tiny bit of breathing room */
+		}
+		
         /* 5. Reduced vertical dimension (2/3 height) */
         input, select, textarea {
             width: 100%;
@@ -193,8 +200,8 @@
     <div class="tab-container">
         <div class="tab-inner">
             <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
-            <div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP ✉</div>
-            <div id="tab-svc" class="tab" onclick="switchTab('svc')">HANDLER ✉</div>
+			<div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP <span class="tab-icon">✉</span></div>
+			<div id="tab-svc" class="tab" onclick="switchTab('svc')">HANDLER <span class="tab-icon">✉</span></div>
         </div>
     </div>
 
