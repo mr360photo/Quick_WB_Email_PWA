@@ -40,7 +40,7 @@
             flex-direction: column;
             align-items: center;
         }
-        .tab-inner, .leg-bar, .card, .init-actions {
+        .tab-inner, .leg-bar, .sticky-summary, .card, .init-actions {
             width: var(--pillar-width) !important;
             box-sizing: border-box;
             margin-left: auto;
@@ -56,6 +56,8 @@
             background: var(--bg);
             padding: 8px 0 6px 0;
             z-index: 1000;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 8px;
         }
         .tab-inner {
             display: flex;
@@ -92,9 +94,9 @@
             margin-top: 6px;
         }
         .leg-btn {
-            flex: 1 1 36px;
-            min-width: 34px;
-            padding: 7px 2px;
+            flex: 1 1 34px;
+            min-width: 32px;
+            padding: 6px 2px;
             border: 1px solid #cbd5e1;
             background: #ffffff;
             color: #334155;
@@ -115,8 +117,40 @@
             background: #e2e8f0;
             color: #1e293b;
             border-color: #cbd5e1;
-            flex: 1.4 1 54px;
+            flex: 1.4 1 52px;
         }
+
+        /* Sticky 4-Field Summary Strip */
+        .sticky-summary {
+            display: grid;
+            grid-template-columns: 1fr 0.85fr 0.85fr 1.1fr;
+            gap: 5px;
+            margin-top: 6px;
+            background: #ffffff;
+            padding: 6px 8px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        .sticky-summary label {
+            font-size: 0.56rem;
+            margin-bottom: 2px;
+            color: #64748b;
+        }
+        .readonly-box {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 5px;
+            padding: 4px 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .card {
             background: white;
             border-radius: 12px;
@@ -203,47 +237,51 @@
             color: #64748b;
         }
 
-        /* INIT Page */
+        /* INIT Page (Compact 5-column layout) */
         .init-grid-header, .init-leg-row {
             display: grid;
-            grid-template-columns: 30px 1.45fr 0.75fr 0.75fr;
-            gap: 6px;
+            grid-template-columns: 24px 1.38fr 0.68fr 0.68fr 0.96fr;
+            gap: 4px;
             align-items: center;
         }
         .init-grid-header {
             margin-bottom: 4px;
         }
         .init-grid-header span {
-            font-size: 0.62rem;
+            font-size: 0.58rem;
             font-weight: 700;
             color: #64748b;
             text-transform: uppercase;
             text-align: center;
         }
         .init-leg-row {
-            margin-bottom: 7px;
+            margin-bottom: 6px;
         }
         .init-leg-row:last-child {
             margin-bottom: 0;
         }
         .init-leg-num {
             font-weight: 800;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             text-align: center;
             color: var(--wb-color);
             background: #eef2ff;
-            border-radius: 6px;
-            padding: 8px 0;
+            border-radius: 5px;
+            padding: 7px 0;
             border: 1px solid #c7d2fe;
         }
-        .init-leg-row input[type="text"] {
+        .init-leg-row input {
+            font-size: 13px;
+            padding: 6px 3px;
+            min-width: 0;
+        }
+        .init-leg-row input.icao-in {
             text-align: center;
             text-transform: uppercase;
-            padding: 7px 4px;
         }
         .init-leg-row input[type="date"] {
-            padding: 6px 4px;
-            font-size: 14px;
+            font-size: 12px;
+            padding: 6px 2px;
         }
         .init-actions {
             display: grid;
@@ -382,26 +420,6 @@
             color: var(--danger-text) !important;
         }
 
-        /* Condensed Leg Summary Row (TFP & BRIEF) */
-        .leg-summary-row {
-            display: grid;
-            grid-template-columns: 1.1fr 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid var(--border);
-        }
-        .readonly-box {
-            background: #f1f5f9;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            padding: 7px 8px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: #334155;
-            text-align: center;
-        }
-
         /* Fuel Mode Switch in TFP */
         .fuel-label-row {
             display: flex;
@@ -432,7 +450,7 @@
             color: #fff;
         }
 
-        /* BRIEF Tab Controls */
+        /* Time Pairs & BRIEF Tab Controls */
         .time-pair {
             display: flex;
             align-items: center;
@@ -440,7 +458,7 @@
         }
         .time-pair select {
             text-align: center;
-            padding: 7px 4px;
+            padding: 7px 2px;
         }
         .time-sep {
             font-weight: 800;
@@ -476,6 +494,57 @@
         .brief-field-head label {
             margin-bottom: 0;
         }
+        .lock-hint {
+            font-size: 0.56rem;
+            font-weight: 600;
+            color: #94a3b8;
+            text-transform: none;
+            margin-left: 3px;
+        }
+
+        /* BRIEF Consecutive Leg Selector */
+        .brief-leg-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+        .brief-leg-btn {
+            flex: 1 1 30px;
+            min-width: 28px;
+            padding: 6px 2px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #334155;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+        }
+        .brief-leg-btn.on {
+            background: var(--wb-color);
+            color: #ffffff;
+            border-color: var(--wb-color);
+        }
+        .brief-leg-btn:disabled {
+            background: #f1f5f9;
+            color: #cbd5e1;
+            border-color: #e2e8f0;
+            cursor: not-allowed;
+        }
+        .brief-clear-btn {
+            flex: 1.5 1 54px;
+            padding: 6px 6px;
+            border: 1px solid var(--danger-border);
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.68rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
 
         /* Output Box */
         .output-header {
@@ -483,11 +552,6 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 6px;
-            gap: 10px;
-        }
-        .output-header-right {
-            display: flex;
-            align-items: center;
             gap: 10px;
         }
         .output-box {
@@ -528,6 +592,11 @@
 </head>
 <body>
 
+    <datalist id="pic-options">
+        <option value="Mathieu">
+        <option value="Peh">
+    </datalist>
+
     <!-- ==================== INITIALIZATION PAGE ==================== -->
     <div id="init-page">
         <div class="card">
@@ -555,6 +624,7 @@
                 <span>Date (UTC)</span>
                 <span>From</span>
                 <span>To</span>
+                <span>PIC</span>
             </div>
             <div id="init-legs-container"></div>
         </div>
@@ -593,6 +663,24 @@
                 <div id="tab-brief" class="tab" onclick="switchTab('brief')">BRIEF</div>
             </div>
             <div id="leg-bar" class="leg-bar"></div>
+            <div class="sticky-summary">
+                <div>
+                    <label>Date (UTC)</label>
+                    <div id="sum-date" class="readonly-box">--</div>
+                </div>
+                <div>
+                    <label>From</label>
+                    <div id="sum-from" class="readonly-box">--</div>
+                </div>
+                <div>
+                    <label>To</label>
+                    <div id="sum-to" class="readonly-box">--</div>
+                </div>
+                <div>
+                    <label>PIC</label>
+                    <div id="sum-pic" class="readonly-box">--</div>
+                </div>
+            </div>
         </div>
 
         <!-- W&B TAB -->
@@ -678,20 +766,6 @@
         <!-- TFP TAB -->
         <div id="tfp-form" class="content-section hidden">
             <div class="card">
-                <div class="leg-summary-row">
-                    <div>
-                        <label>Date (UTC)</label>
-                        <div id="t-date-display" class="readonly-box">--</div>
-                    </div>
-                    <div>
-                        <label>From</label>
-                        <div id="t-from-display" class="readonly-box">--</div>
-                    </div>
-                    <div>
-                        <label>To</label>
-                        <div id="t-to-display" class="readonly-box">--</div>
-                    </div>
-                </div>
                 <div class="input-grid">
                     <div>
                         <label>FL</label>
@@ -712,12 +786,13 @@
                         <input type="text" id="t-fuel" oninput="onTfpInputChange()">
                     </div>
                     <div>
-                        <label>PIC</label>
-                        <input list="pic-options" id="t-pic" placeholder="Select..." oninput="onTfpInputChange()">
-                        <datalist id="pic-options">
-                            <option value="Mathieu">
-                            <option value="Peh">
-                        </datalist>
+                        <label for="t-display-for">Display TFP For</label>
+                        <select id="t-display-for" onchange="onDisplayTfpForChange()">
+                            <option value="All">All</option>
+                            <option value="Mathieu">Mathieu</option>
+                            <option value="Peh">Peh</option>
+                            <option value="Guest">Guest</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -737,23 +812,24 @@
                             <option value="Arrival">Arrival (Airport → Hotel)</option>
                             <option value="Departure">Departure (Hotel → Airport)</option>
                             <option value="WSSL">WSSL Departure</option>
+                            <option value="Stop Over">Stop Over</option>
                         </select>
                     </div>
                     <div>
                         <label id="lbl-time">ETA (LCL)</label>
-                        <input type="text" id="s-time" oninput="onSvcInputChange('time')">
+                        <div class="time-pair">
+                            <select id="s-time-hh" onchange="onSvcInputChange('time')"></select>
+                            <span class="time-sep">:</span>
+                            <select id="s-time-mm" onchange="onSvcInputChange('time')"></select>
+                        </div>
                     </div>
                     <div>
-                        <label id="lbl-crew">Crews</label>
-                        <input type="number" id="s-crew" value="3" oninput="onSvcInputChange('crew')">
+                        <label id="lbl-hotel">Hotel</label>
+                        <input type="text" id="s-hotel" oninput="onSvcInputChange('hotel')">
                     </div>
                     <div class="full">
                         <label>Handler</label>
                         <input type="text" id="s-handler" oninput="onSvcInputChange('handler')">
-                    </div>
-                    <div class="full">
-                        <label id="lbl-hotel">Hotel</label>
-                        <input type="text" id="s-hotel" oninput="onSvcInputChange('hotel')">
                     </div>
                     <div class="full">
                         <label class="inline-check" style="margin-bottom: 5px;">
@@ -769,22 +845,23 @@
         <!-- BRIEF TAB -->
         <div id="brief-form" class="content-section hidden">
             <div class="card">
-                <div class="leg-summary-row">
-                    <div>
-                        <label>Date (UTC)</label>
-                        <div id="b-date-display" class="readonly-box">--</div>
-                    </div>
-                    <div>
-                        <label>From</label>
-                        <div id="b-from-display" class="readonly-box">--</div>
-                    </div>
-                    <div>
-                        <label>To</label>
-                        <div id="b-to-display" class="readonly-box">--</div>
-                    </div>
-                </div>
-
                 <div class="input-grid" style="margin-bottom: 8px;">
+                    <div>
+                        <label>Reporting Time (LCL)</label>
+                        <div class="time-pair">
+                            <select id="b-rt-hh" onchange="onBriefInputChange()"></select>
+                            <span class="time-sep">:</span>
+                            <select id="b-rt-mm" onchange="onBriefInputChange()"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Ground Time <span id="b-gt-hint" class="lock-hint">(Stop Over only)</span></label>
+                        <div class="time-pair">
+                            <select id="b-gt-hh" onchange="onBriefInputChange()"></select>
+                            <span class="time-sep">h</span>
+                            <select id="b-gt-mm" onchange="onBriefInputChange()"></select>
+                        </div>
+                    </div>
                     <div>
                         <label>Flight Time</label>
                         <div class="time-pair">
@@ -796,8 +873,8 @@
                     <div>
                         <label>Taxi</label>
                         <div class="taxi-group">
-                            <button type="button" id="taxi-SHORT" class="taxi-btn active" onclick="setTaxi('SHORT')">SHORT</button>
-                            <button type="button" id="taxi-MEDIUM" class="taxi-btn" onclick="setTaxi('MEDIUM')">MED</button>
+                            <button type="button" id="taxi-SHORT" class="taxi-btn" onclick="setTaxi('SHORT')">SHORT</button>
+                            <button type="button" id="taxi-MEDIUM" class="taxi-btn active" onclick="setTaxi('MEDIUM')">MED</button>
                             <button type="button" id="taxi-LONG" class="taxi-btn" onclick="setTaxi('LONG')">LONG</button>
                         </div>
                     </div>
@@ -839,15 +916,6 @@
                         </div>
                         <textarea id="b-sc" rows="2" oninput="onBriefInputChange()"></textarea>
                     </div>
-                    <div style="padding-top: 6px; border-top: 1px solid var(--border);">
-                        <label>Reporting Time (LCL)</label>
-                        <div class="time-pair" style="max-width: 180px;">
-                            <select id="b-rep-hh" onchange="onBriefReportTimeChange()"></select>
-                            <span class="time-sep">:</span>
-                            <select id="b-rep-mm" onchange="onBriefReportTimeChange()"></select>
-                            <span class="time-sep" style="font-size: 0.75rem; margin-left: 4px;">LCL</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -856,13 +924,9 @@
         <div id="output-container" class="card hidden">
             <div class="output-header">
                 <label id="output-title" style="margin:0;">Consolidated Email</label>
-                <div class="output-header-right">
-                    <label id="all-check-wrap" class="inline-check">
-                        <input type="checkbox" id="chk-all-legs" checked onchange="onAllToggleChange()"> ALL
-                    </label>
-                    <button type="button" class="copy-btn-top" onclick="copyCombined()">Copy</button>
-                </div>
+                <button type="button" class="copy-btn-top" onclick="copyCombined()">Copy</button>
             </div>
+            <div id="brief-leg-bar" class="brief-leg-bar hidden"></div>
             <div id="out-combined" class="output-box"></div>
         </div>
     </div>
@@ -875,7 +939,7 @@
     }
 
     const MAX_LEGS = 9;
-    const STORAGE_KEY = 'crewOpsMultiLeg_v1';
+    const STORAGE_KEY = 'crewOpsMultiLeg_v2';
     const PAX_FIELDS = ['adult', 'male', 'female', 'child', 'infant'];
     const PAX_WEIGHTS = { adult: 203, male: 203, female: 163, child: 77, infant: 77 };
 
@@ -886,15 +950,19 @@
     function createDefaultLegData() {
         return {
             wb: { crewConfig: '55485', adult: 0, male: 0, female: 0, child: 0, infant: 0, bagInput: 0 },
-            tfp: { fl: 'Optimal', speed: '0.90', fuel: '', fuelMode: 'landing', pic: '' },
+            tfp: { fl: 'Optimal', speed: '0.90', fuel: '', fuelMode: 'landing' },
             svc: {
                 date: '', dateTouched: false,
                 type: 'Arrival', typeTouched: false,
-                time: '', crew: '3', handler: '', hotel: '',
+                timeHH: '--', timeMM: '--',
+                handler: '', hotel: '',
                 addCheck: false, addText: ''
             },
             brief: {
-                ftHH: '00', ftMM: '00', taxi: 'SHORT',
+                rtHH: '--', rtMM: '--',
+                gtHH: '00', gtMM: '00',
+                ftHH: '00', ftMM: '00',
+                taxi: 'MEDIUM',
                 dwx: '', dwxNone: false,
                 ewx: '', ewxNone: false,
                 awx: '', awxNone: false,
@@ -908,7 +976,7 @@
         const initLegs = {};
         const legs = {};
         for (let i = 1; i <= MAX_LEGS; i++) {
-            initLegs[i] = { date: '', from: '', to: '' };
+            initLegs[i] = { date: '', from: '', to: '', pic: '' };
             legs[i] = createDefaultLegData();
         }
         return {
@@ -917,10 +985,8 @@
             trip: '',
             selectedLeg: 1,
             currentTab: 'wb',
-            tfpAll: true,
-            briefAll: true,
-            briefReportHH: '08',
-            briefReportMM: '00',
+            displayTfpFor: 'All',
+            briefSelectedLegs: [],
             initLegs,
             legs
         };
@@ -967,9 +1033,15 @@
     }
 
     function populateTimeSelects() {
-        const fill = (id, max) => {
+        const fill = (id, max, includeBlank) => {
             const sel = document.getElementById(id);
             sel.innerHTML = '';
+            if (includeBlank) {
+                const blankOpt = document.createElement('option');
+                blankOpt.value = '--';
+                blankOpt.textContent = '--';
+                sel.appendChild(blankOpt);
+            }
             for (let v = 0; v <= max; v++) {
                 const str = String(v).padStart(2, '0');
                 const opt = document.createElement('option');
@@ -978,10 +1050,14 @@
                 sel.appendChild(opt);
             }
         };
-        fill('b-ft-hh', 14);
-        fill('b-ft-mm', 59);
-        fill('b-rep-hh', 24);
-        fill('b-rep-mm', 59);
+        fill('s-time-hh', 24, true);
+        fill('s-time-mm', 59, true);
+        fill('b-rt-hh', 24, true);
+        fill('b-rt-mm', 59, true);
+        fill('b-gt-hh', 8, false);
+        fill('b-gt-mm', 59, false);
+        fill('b-ft-hh', 14, false);
+        fill('b-ft-mm', 59, false);
     }
 
     function buildInitLegRows() {
@@ -993,8 +1069,9 @@
             row.innerHTML = `
                 <div class="init-leg-num">${i}</div>
                 <input type="date" id="init-date-${i}" oninput="onInitLegChange(${i}, 'date')">
-                <input type="text" id="init-from-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'from')">
-                <input type="text" id="init-to-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'to')">
+                <input type="text" class="icao-in" id="init-from-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'from')">
+                <input type="text" class="icao-in" id="init-to-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'to')">
+                <input type="text" list="pic-options" id="init-pic-${i}" placeholder="PIC" oninput="onInitLegChange(${i}, 'pic')">
             `;
             container.appendChild(row);
         }
@@ -1004,7 +1081,7 @@
         const valid = [];
         for (let i = 1; i <= MAX_LEGS; i++) {
             const l = appState.initLegs[i];
-            if (l && l.date.trim() !== '' && l.from.trim() !== '' && l.to.trim() !== '') {
+            if (l && l.date.trim() !== '' && l.from.trim() !== '' && l.to.trim() !== '' && l.pic.trim() !== '') {
                 valid.push(i);
             }
         }
@@ -1075,6 +1152,7 @@
         if (!validLegs.includes(appState.selectedLeg)) {
             appState.selectedLeg = validLegs[0];
         }
+        appState.briefSelectedLegs = appState.briefSelectedLegs.filter(n => validLegs.includes(n));
         appState.tripActive = true;
         saveState();
 
@@ -1109,6 +1187,7 @@
             const fromEl = document.getElementById(`init-from-${i}`);
             fromEl.value = l.from || '';
             document.getElementById(`init-to-${i}`).value = l.to || '';
+            document.getElementById(`init-pic-${i}`).value = l.pic || '';
         }
         updateProceedButton();
     }
@@ -1133,7 +1212,7 @@
 
     function isLegUntouched(legNum) {
         const initL = appState.initLegs[legNum];
-        if (initL.date || initL.from || initL.to) return false;
+        if (initL.date || initL.from || initL.to || initL.pic) return false;
         return JSON.stringify(appState.legs[legNum]) === JSON.stringify(createDefaultLegData());
     }
 
@@ -1155,14 +1234,12 @@
         }
 
         const payload = {
-            v: 1,
+            v: 2,
             acId: appState.acId,
             trip: appState.trip,
             selectedLeg: appState.selectedLeg,
-            tfpAll: appState.tfpAll,
-            briefAll: appState.briefAll,
-            briefReportHH: appState.briefReportHH,
-            briefReportMM: appState.briefReportMM,
+            displayTfpFor: appState.displayTfpFor,
+            briefSelectedLegs: appState.briefSelectedLegs,
             initLegs: compactInit,
             legs: compactLegs
         };
@@ -1184,6 +1261,18 @@
             document.getElementById('import-text').value = '';
             document.getElementById('import-text').focus();
         }
+    }
+
+    function parseLegacyTime(str) {
+        if (!str) return { hh: '--', mm: '--' };
+        const m = String(str).trim().match(/^(\d{1,2}):?(\d{2})$/);
+        if (!m) return { hh: '--', mm: '--' };
+        const h = parseInt(m[1], 10);
+        const min = parseInt(m[2], 10);
+        if (h >= 0 && h <= 24 && min >= 0 && min <= 59) {
+            return { hh: String(h).padStart(2, '0'), mm: String(min).padStart(2, '0') };
+        }
+        return { hh: '--', mm: '--' };
     }
 
     function importTripCode() {
@@ -1210,16 +1299,15 @@
         }
 
         const base = createInitialState();
+        const isV1 = !parsed.v || parsed.v === 1;
         appState = {
             ...base,
             acId: parsed.acId || 'VP-CTL',
             trip: parsed.trip || '',
             selectedLeg: parsed.selectedLeg || 1,
             currentTab: 'wb',
-            tfpAll: parsed.tfpAll !== undefined ? !!parsed.tfpAll : true,
-            briefAll: parsed.briefAll !== undefined ? !!parsed.briefAll : true,
-            briefReportHH: parsed.briefReportHH || '08',
-            briefReportMM: parsed.briefReportMM || '00',
+            displayTfpFor: parsed.displayTfpFor || 'All',
+            briefSelectedLegs: Array.isArray(parsed.briefSelectedLegs) ? parsed.briefSelectedLegs : [],
             initLegs: { ...base.initLegs },
             legs: { ...base.legs }
         };
@@ -1230,11 +1318,27 @@
                 appState.initLegs[i] = { ...base.initLegs[i], ...parsed.initLegs[i] };
             }
             if (parsed.legs[i]) {
+                const pl = parsed.legs[i];
+                // Backwards compatibility for v1 codes
+                if (isV1 && pl.tfp && pl.tfp.pic && !appState.initLegs[i].pic) {
+                    appState.initLegs[i].pic = pl.tfp.pic;
+                }
+                const svcMerged = { ...base.legs[i].svc, ...(pl.svc || {}) };
+                if (isV1 && pl.svc && pl.svc.time && (!pl.svc.timeHH || pl.svc.timeHH === '--')) {
+                    const pt = parseLegacyTime(pl.svc.time);
+                    svcMerged.timeHH = pt.hh;
+                    svcMerged.timeMM = pt.mm;
+                }
+                const briefMerged = { ...base.legs[i].brief, ...(pl.brief || {}) };
+                if (isV1 && parsed.briefReportHH && parsed.briefReportMM && (!pl.brief || !pl.brief.rtHH)) {
+                    briefMerged.rtHH = parsed.briefReportHH;
+                    briefMerged.rtMM = parsed.briefReportMM;
+                }
                 appState.legs[i] = {
-                    wb: { ...base.legs[i].wb, ...(parsed.legs[i].wb || {}) },
-                    tfp: { ...base.legs[i].tfp, ...(parsed.legs[i].tfp || {}) },
-                    svc: { ...base.legs[i].svc, ...(parsed.legs[i].svc || {}) },
-                    brief: { ...base.legs[i].brief, ...(parsed.legs[i].brief || {}) }
+                    wb: { ...base.legs[i].wb, ...(pl.wb || {}) },
+                    tfp: { ...base.legs[i].tfp, ...(pl.tfp || {}) },
+                    svc: svcMerged,
+                    brief: briefMerged
                 };
             }
         }
@@ -1244,6 +1348,7 @@
         if (validLegs.length > 0 && !validLegs.includes(appState.selectedLeg)) {
             appState.selectedLeg = validLegs[0];
         }
+        appState.briefSelectedLegs = appState.briefSelectedLegs.filter(n => validLegs.includes(n));
 
         saveState();
         renderInitFromState();
@@ -1281,6 +1386,14 @@
         bar.appendChild(initBtn);
     }
 
+    function updateStickySummary(legNum) {
+        const initLeg = appState.initLegs[legNum] || { date: '', from: '', to: '', pic: '' };
+        document.getElementById('sum-date').innerText = formatDate(initLeg.date);
+        document.getElementById('sum-from').innerText = initLeg.from || '--';
+        document.getElementById('sum-to').innerText = initLeg.to || '--';
+        document.getElementById('sum-pic').innerText = initLeg.pic || '--';
+    }
+
     function selectLeg(legNum) {
         appState.selectedLeg = legNum;
         saveState();
@@ -1290,6 +1403,14 @@
 
     function switchTab(type) {
         appState.currentTab = type;
+
+        const validLegs = getValidLegNumbers();
+        if (type === 'brief') {
+            appState.briefSelectedLegs = appState.briefSelectedLegs.filter(n => validLegs.includes(n));
+            if (appState.briefSelectedLegs.length === 0 && validLegs.includes(appState.selectedLeg)) {
+                appState.briefSelectedLegs = [appState.selectedLeg];
+            }
+        }
         saveState();
 
         document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
@@ -1299,24 +1420,20 @@
 
         const outCard = document.getElementById('output-container');
         const outTitle = document.getElementById('output-title');
-        const allWrap = document.getElementById('all-check-wrap');
-        const allChk = document.getElementById('chk-all-legs');
+        const briefLegBar = document.getElementById('brief-leg-bar');
 
         if (type === 'wb') {
             outCard.classList.add('hidden');
+            briefLegBar.classList.add('hidden');
         } else {
             outCard.classList.remove('hidden');
-            if (type === 'tfp') {
+            if (type === 'tfp' || type === 'svc') {
                 outTitle.innerText = 'Consolidated Email';
-                allWrap.classList.remove('hidden');
-                allChk.checked = appState.tfpAll;
-            } else if (type === 'svc') {
-                outTitle.innerText = 'Consolidated Email';
-                allWrap.classList.add('hidden');
+                briefLegBar.classList.add('hidden');
             } else if (type === 'brief') {
                 outTitle.innerText = 'Consolidated Brief';
-                allWrap.classList.remove('hidden');
-                allChk.checked = appState.briefAll;
+                briefLegBar.classList.remove('hidden');
+                renderBriefLegSelector();
             }
         }
 
@@ -1325,8 +1442,9 @@
 
     function loadSelectedLegIntoUI() {
         const legNum = appState.selectedLeg;
-        const initLeg = appState.initLegs[legNum];
         const legData = appState.legs[legNum];
+
+        updateStickySummary(legNum);
 
         // --- W&B ---
         document.getElementById('crewConfig').value = legData.wb.crewConfig;
@@ -1338,20 +1456,17 @@
         calculateWbDisplay(legNum);
 
         // --- TFP ---
-        document.getElementById('t-date-display').innerText = formatDate(initLeg.date);
-        document.getElementById('t-from-display').innerText = initLeg.from || '--';
-        document.getElementById('t-to-display').innerText = initLeg.to || '--';
         document.getElementById('t-fl').value = legData.tfp.fl;
         document.getElementById('t-speed').value = legData.tfp.speed;
         document.getElementById('t-fuel').value = legData.tfp.fuel;
-        document.getElementById('t-pic').value = legData.tfp.pic;
+        document.getElementById('t-display-for').value = appState.displayTfpFor || 'All';
         applyFuelModeUI(legData.tfp.fuelMode);
 
         // --- HANDLER ---
         document.getElementById('s-date').value = legData.svc.date || '';
         document.getElementById('s-type').value = legData.svc.type || 'Arrival';
-        document.getElementById('s-time').value = legData.svc.time || '';
-        document.getElementById('s-crew').value = legData.svc.crew ?? '3';
+        document.getElementById('s-time-hh').value = legData.svc.timeHH || '--';
+        document.getElementById('s-time-mm').value = legData.svc.timeMM || '--';
         document.getElementById('s-handler').value = legData.svc.handler || '';
         document.getElementById('s-hotel').value = legData.svc.hotel || '';
         document.getElementById('s-add-check').checked = !!legData.svc.addCheck;
@@ -1359,12 +1474,14 @@
         updateSvcFieldStates();
 
         // --- BRIEF ---
-        document.getElementById('b-date-display').innerText = formatDate(initLeg.date);
-        document.getElementById('b-from-display').innerText = initLeg.from || '--';
-        document.getElementById('b-to-display').innerText = initLeg.to || '--';
+        document.getElementById('b-rt-hh').value = legData.brief.rtHH || '--';
+        document.getElementById('b-rt-mm').value = legData.brief.rtMM || '--';
+        document.getElementById('b-gt-hh').value = legData.brief.gtHH || '00';
+        document.getElementById('b-gt-mm').value = legData.brief.gtMM || '00';
         document.getElementById('b-ft-hh').value = legData.brief.ftHH || '00';
         document.getElementById('b-ft-mm').value = legData.brief.ftMM || '00';
-        applyTaxiUI(legData.brief.taxi || 'SHORT');
+        applyTaxiUI(legData.brief.taxi || 'MEDIUM');
+        updateBriefGroundTimeState(legNum);
 
         const briefMap = [
             ['dwx', 'b-dwx', 'b-dwx-none'],
@@ -1380,13 +1497,18 @@
             document.getElementById(inputId).disabled = isNone;
         });
 
-        document.getElementById('b-rep-hh').value = appState.briefReportHH || '08';
-        document.getElementById('b-rep-mm').value = appState.briefReportMM || '00';
-
         runGen();
     }
 
     // ==================== W&B LOGIC ====================
+    function getCrewCountForLeg(legNum) {
+        const cfg = appState.legs[legNum].wb.crewConfig;
+        if (cfg === '55285') return 2;
+        if (cfg === '55485' || cfg === '55507') return 3;
+        if (cfg === '55685' || cfg === '55707') return 4;
+        return 3;
+    }
+
     function computeWbValues(legNum) {
         const wb = appState.legs[legNum].wb;
         const mode = runtimeBagMode[legNum] || 'default';
@@ -1528,7 +1650,12 @@
         tfp.fl = document.getElementById('t-fl').value;
         tfp.speed = document.getElementById('t-speed').value;
         tfp.fuel = document.getElementById('t-fuel').value;
-        tfp.pic = document.getElementById('t-pic').value;
+        saveState();
+        runGen();
+    }
+
+    function onDisplayTfpForChange() {
+        appState.displayTfpFor = document.getElementById('t-display-for').value;
         saveState();
         runGen();
     }
@@ -1554,22 +1681,42 @@
         return segments.join(' & ');
     }
 
+    function getFilteredTfpLegs() {
+        const validLegs = getValidLegNumbers();
+        const filter = appState.displayTfpFor || 'All';
+        if (filter === 'All') return validLegs;
+
+        return validLegs.filter(legNum => {
+            const rawPic = (appState.initLegs[legNum].pic || '').trim();
+            const normPic = rawPic.toLowerCase();
+            if (filter === 'Mathieu') return normPic === 'mathieu';
+            if (filter === 'Peh') return normPic === 'peh';
+            if (filter === 'Guest') return rawPic !== '' && normPic !== 'mathieu' && normPic !== 'peh';
+            return true;
+        });
+    }
+
     function genTfp() {
         const acId = appState.acId || '"AC_ID"';
         const trip = appState.trip || '"TRIP #"';
-        const validLegs = getValidLegNumbers();
-        const targetLegs = appState.tfpAll ? validLegs : [appState.selectedLeg];
+        const filter = appState.displayTfpFor || 'All';
+        const targetLegs = getFilteredTfpLegs();
+
+        if (targetLegs.length === 0) {
+            document.getElementById('out-combined').innerText = `No legs found for PIC: ${filter}`;
+            return;
+        }
 
         let subject = '';
         let intro = '';
 
-        if (!appState.tfpAll || targetLegs.length === 1) {
+        if (targetLegs.length === 1) {
             const l = targetLegs[0];
             const initL = appState.initLegs[l];
             const dt = formatDate(initL.date);
             const from = initL.from.toUpperCase() || '"FROM"';
             const to = initL.to.toUpperCase() || '"TO"';
-            if (!appState.tfpAll) {
+            if (filter !== 'All') {
                 subject = `TFP / ${acId} TRIP ${trip}-${l} / ${from}-${to} on ${dt} (UTC)`;
                 intro = `Dear Ops team,\n\nPlease send us a TFP for the following flight:`;
             } else {
@@ -1593,7 +1740,7 @@
             const from = initL.from.toUpperCase() || '"FROM"';
             const to = initL.to.toUpperCase() || '"TO"';
             const dt = formatDate(initL.date);
-            const pic = tfp.pic || '____';
+            const pic = (initL.pic || '').trim() || '____';
             const fl = tfp.fl || '"FL"';
             const speed = tfp.speed || '0.90';
             const fuelLabel = tfp.fuelMode === 'departure' ? 'Departure Fuel' : 'Landing Fuel';
@@ -1611,32 +1758,37 @@
     function updateSvcFieldStates() {
         const type = document.getElementById('s-type').value;
         const labelEl = document.getElementById('lbl-time');
-        const crewIn = document.getElementById('s-crew');
         const hotelIn = document.getElementById('s-hotel');
         if (type === 'WSSL') {
             labelEl.innerText = "REPORTING TIME (LCL)";
-            crewIn.disabled = true;
+            hotelIn.disabled = true;
+        } else if (type === 'Stop Over') {
+            labelEl.innerText = "STOP OVER ETA (LCL)";
             hotelIn.disabled = true;
         } else {
             labelEl.innerText = (type === 'Arrival') ? "ETA (LCL)" : "Pickup Time (LCL)";
-            crewIn.disabled = false;
             hotelIn.disabled = false;
         }
     }
 
     function onSvcInputChange(field) {
-        const svc = appState.legs[appState.selectedLeg].svc;
+        const legNum = appState.selectedLeg;
+        const svc = appState.legs[legNum].svc;
         if (field === 'date') {
             svc.date = document.getElementById('s-date').value;
             svc.dateTouched = true;
         } else if (field === 'type') {
             svc.type = document.getElementById('s-type').value;
             svc.typeTouched = true;
+            if (svc.type === 'Stop Over') {
+                // Automatically blank BRIEF Reporting Time for this leg
+                appState.legs[legNum].brief.rtHH = '--';
+                appState.legs[legNum].brief.rtMM = '--';
+            }
             updateSvcFieldStates();
         } else if (field === 'time') {
-            svc.time = document.getElementById('s-time').value;
-        } else if (field === 'crew') {
-            svc.crew = document.getElementById('s-crew').value;
+            svc.timeHH = document.getElementById('s-time-hh').value;
+            svc.timeMM = document.getElementById('s-time-mm').value;
         } else if (field === 'handler') {
             svc.handler = document.getElementById('s-handler').value;
         } else if (field === 'hotel') {
@@ -1661,27 +1813,52 @@
         const date = formatDate(svc.date);
         const type = svc.type || 'Arrival';
         const handler = svc.handler || '"Handler"';
-        const time = svc.time || '"TIME"';
+        const time = (svc.timeHH && svc.timeHH !== '--' && svc.timeMM && svc.timeMM !== '--')
+            ? `${svc.timeHH}:${svc.timeMM}`
+            : '"TIME"';
         const hotel = svc.hotel || '"Hotel"';
-        const crew = svc.crew;
+        const crew = getCrewCountForLeg(legNum);
 
         const subject = `Service Request for ${id} // ${from}-${to} on ${date}`;
         let body = `Dear ${handler} team,\n\n`;
+
         if (type === 'Arrival') {
             body += `Please organise transportation for ${id}'s ${crew} crews from the airport to the ${hotel} hotel.\nThe current ETA at ${to} is ${time} LCL.\n\n`;
+            if (svc.addCheck) {
+                body += `Additional services needed will be: \n\n${svc.addText}\n\n`;
+            }
+            body += `Thanks in advance for your support and best regards,`;
         } else if (type === 'Departure') {
             body += `Please organise transportation for ${id}'s ${crew} crews from the ${hotel} hotel to the airport at ${time} LCL. Please also forward the car/driver details when available.\n\n`;
+            if (svc.addCheck) {
+                body += `Additional services needed will be: \n\n${svc.addText}\n\n`;
+            }
+            body += `Thanks in advance for your support and best regards,`;
         } else if (type === 'WSSL') {
             body += `Please note the reporting time of the crew at WSSL will be ${time} LCL on ${date}. \n\nThank you for arranging the positioning of ${id} on the departure stand accordingly. End of day positioning prior to departure date is approved as necessary. \n\n`;
+            if (svc.addCheck) {
+                body += `Additional services needed will be: \n\n${svc.addText}\n\n`;
+            }
+            body += `Thanks in advance for your support and best regards,`;
+        } else if (type === 'Stop Over') {
+            body += `Our ETA at ${to} is ${time} LCL.\n\n`;
+            if (svc.addCheck) {
+                body += `Please arrange the following services upon landing:\n\n${svc.addText}\n\n`;
+            }
+            body += `Thank you in advance for your support and best regards,`;
         }
-        if (svc.addCheck) {
-            body += `Additional services needed will be: \n\n${svc.addText}\n\n`;
-        }
-        body += `Thanks in advance for your support and best regards,`;
+
         document.getElementById('out-combined').innerText = `${subject}\n\n${body}`;
     }
 
     // ==================== BRIEF LOGIC ====================
+    function updateBriefGroundTimeState(legNum) {
+        const isStopOver = appState.legs[legNum].svc.type === 'Stop Over';
+        document.getElementById('b-gt-hh').disabled = !isStopOver;
+        document.getElementById('b-gt-mm').disabled = !isStopOver;
+        document.getElementById('b-gt-hint').style.display = isStopOver ? 'none' : 'inline';
+    }
+
     function applyTaxiUI(val) {
         ['SHORT', 'MEDIUM', 'LONG'].forEach(opt => {
             document.getElementById('taxi-' + opt).classList.toggle('active', opt === val);
@@ -1697,6 +1874,10 @@
 
     function onBriefInputChange() {
         const brief = appState.legs[appState.selectedLeg].brief;
+        brief.rtHH = document.getElementById('b-rt-hh').value;
+        brief.rtMM = document.getElementById('b-rt-mm').value;
+        brief.gtHH = document.getElementById('b-gt-hh').value;
+        brief.gtMM = document.getElementById('b-gt-mm').value;
         brief.ftHH = document.getElementById('b-ft-hh').value;
         brief.ftMM = document.getElementById('b-ft-mm').value;
 
@@ -1718,26 +1899,88 @@
         runGen();
     }
 
-    function onBriefReportTimeChange() {
-        appState.briefReportHH = document.getElementById('b-rep-hh').value;
-        appState.briefReportMM = document.getElementById('b-rep-mm').value;
+    function renderBriefLegSelector() {
+        const bar = document.getElementById('brief-leg-bar');
+        const validLegs = getValidLegNumbers();
+        appState.briefSelectedLegs = appState.briefSelectedLegs.filter(n => validLegs.includes(n)).sort((a, b) => a - b);
+        const sel = appState.briefSelectedLegs;
+
+        bar.innerHTML = '';
+        validLegs.forEach(legNum => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            const isOn = sel.includes(legNum);
+            btn.className = 'brief-leg-btn' + (isOn ? ' on' : '');
+            btn.textContent = legNum;
+
+            let canToggle = false;
+            if (sel.length === 0) {
+                canToggle = true;
+            } else {
+                const minSel = sel[0];
+                const maxSel = sel[sel.length - 1];
+                if (isOn) {
+                    // Only endpoints can be deselected to keep selection strictly consecutive
+                    canToggle = (legNum === minSel || legNum === maxSel);
+                } else {
+                    // Only immediate neighbors can be added
+                    canToggle = (legNum === minSel - 1 || legNum === maxSel + 1);
+                }
+            }
+
+            btn.disabled = !canToggle;
+            btn.onclick = () => toggleBriefLeg(legNum);
+            bar.appendChild(btn);
+        });
+
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'brief-clear-btn';
+        clearBtn.textContent = 'CLEAR';
+        clearBtn.onclick = clearBriefLegs;
+        bar.appendChild(clearBtn);
+    }
+
+    function toggleBriefLeg(legNum) {
+        const sel = appState.briefSelectedLegs;
+        const idx = sel.indexOf(legNum);
+        if (idx >= 0) {
+            sel.splice(idx, 1);
+        } else {
+            sel.push(legNum);
+            sel.sort((a, b) => a - b);
+        }
         saveState();
-        runGen();
+        renderBriefLegSelector();
+        genBrief();
+    }
+
+    function clearBriefLegs() {
+        appState.briefSelectedLegs = [];
+        saveState();
+        renderBriefLegSelector();
+        genBrief();
     }
 
     function genBrief() {
         const validLegs = getValidLegNumbers();
-        const targetLegs = appState.briefAll ? validLegs : [appState.selectedLeg];
+        const targetLegs = appState.briefSelectedLegs.filter(n => validLegs.includes(n)).sort((a, b) => a - b);
+
+        if (targetLegs.length === 0) {
+            document.getElementById('out-combined').innerText = 'Select one or more consecutive legs above to generate the brief.';
+            return;
+        }
 
         const blocks = targetLegs.map(legNum => {
             const initL = appState.initLegs[legNum];
             const b = appState.legs[legNum].brief;
+            const isStopOver = appState.legs[legNum].svc.type === 'Stop Over';
             const wbRes = computeWbValues(legNum);
 
             const from = initL.from.toUpperCase() || '"FROM"';
             const to = initL.to.toUpperCase() || '"TO"';
             const ft = `${parseInt(b.ftHH || '0', 10)}h${b.ftMM || '00'}`;
-            const tx = b.taxi || 'SHORT';
+            const tx = b.taxi || 'MEDIUM';
 
             const fmtField = (val, isNone) => isNone ? 'None reported/forecasted' : (val.trim() || '____');
             const dw = fmtField(b.dwx, b.dwxNone);
@@ -1746,23 +1989,30 @@
             const tb = fmtField(b.tb, b.tbNone);
             const sc = fmtField(b.sc, b.scNone);
 
-            return `Leg ${legNum} - ${from}-${to}: ${wbRes.paxCount} pax - Flight Time: ${ft}\n\nTaxi Time: ${tx}\n\nDeparture Wx: ${dw}\nEnroute Wx: ${ew}\nArrival Wx: ${aw}\n\nTurbulence: ${tb}\n\nSpecial Considerations: ${sc}`;
+            const hasRt = (b.rtHH && b.rtHH !== '--' && b.rtMM && b.rtMM !== '--');
+            let rtLine = '';
+            if (hasRt) {
+                rtLine = `Report / Pickup at ${b.rtHH}:${b.rtMM} LCL`;
+            } else if (isStopOver) {
+                rtLine = `Report / Pickup N/A`;
+            } else {
+                rtLine = `Report / Pickup at ____ LCL`;
+            }
+
+            let prefix = '';
+            if (isStopOver) {
+                const gt = `${parseInt(b.gtHH || '0', 10)}h${b.gtMM || '00'}`;
+                prefix = `** Stop Over at ${from} - Ground Time ${gt} **\n\n`;
+            }
+
+            return `${prefix}${rtLine}\n\nLeg ${legNum} // ${from}-${to} - Flight Time: ${ft}\n${wbRes.paxCount} pax\n\nTaxi Time: ${tx}\n\nDeparture Wx: ${dw}\nEnroute Wx: ${ew}\nArrival Wx: ${aw}\nTurbulence: ${tb}\n\nSpecial Considerations: ${sc}`;
         });
 
-        const repTime = `${appState.briefReportHH || '08'}:${appState.briefReportMM || '00'} LCL`;
-        const text = `Today's flight(s) briefing:\n\n${blocks.join('\n\n')}\n\nSee you at ${repTime}`;
+        const text = `Today's flight(s) briefing:\n\n${blocks.join('\n\n')}`;
         document.getElementById('out-combined').innerText = text;
     }
 
     // ==================== SHARED OUTPUT & PERSISTENCE ====================
-    function onAllToggleChange() {
-        const checked = document.getElementById('chk-all-legs').checked;
-        if (appState.currentTab === 'tfp') appState.tfpAll = checked;
-        if (appState.currentTab === 'brief') appState.briefAll = checked;
-        saveState();
-        runGen();
-    }
-
     function runGen() {
         if (appState.currentTab === 'tfp') genTfp();
         if (appState.currentTab === 'svc') genSvc();
@@ -1788,6 +2038,7 @@
                 appState = {
                     ...base,
                     ...parsed,
+                    briefSelectedLegs: Array.isArray(parsed.briefSelectedLegs) ? parsed.briefSelectedLegs : [],
                     initLegs: { ...base.initLegs, ...(parsed.initLegs || {}) },
                     legs: { ...base.legs }
                 };
