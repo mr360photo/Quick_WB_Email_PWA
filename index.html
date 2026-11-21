@@ -9,12 +9,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-		:root {
+        :root {
             --primary: #2c3e50;
             --wb-color: #1e3a8a;
             --danger-bg: #fee2e2;
             --danger-text: #b91c1c;
             --danger-border: #fecaca;
+            --success-bg: #16a34a;
+            --danger-solid: #dc2626;
             --bg: #f0f2f5;
             --card: #ffffff;
             --border: #e2e8f0;
@@ -25,14 +27,20 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
-            padding: 0 0 20px 0;
+            padding: 10px 0 24px 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text);
             overflow-x: hidden;
         }
-        .tab-inner, .card, .clear-btn-container {
+        #main-app {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .tab-inner, .leg-bar, .card, .init-actions {
             width: var(--pillar-width) !important;
             box-sizing: border-box;
             margin-left: auto;
@@ -43,9 +51,10 @@
             top: 0;
             width: 100%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             background: var(--bg);
-            padding: 10px 0;
+            padding: 8px 0 6px 0;
             z-index: 1000;
         }
         .tab-inner {
@@ -53,6 +62,58 @@
             background: #ddd;
             border-radius: 10px;
             padding: 4px;
+            gap: 2px;
+        }
+        .tab {
+            flex: 1;
+            padding: 8px 2px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: 0.2s;
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+        .active-tab {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-icon {
+            font-size: 1.2em;
+            vertical-align: bottom;
+            line-height: 1;
+            margin-left: 2px;
+        }
+        .leg-bar {
+            display: flex;
+            gap: 5px;
+            margin-top: 6px;
+        }
+        .leg-btn {
+            flex: 1;
+            padding: 7px 2px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            color: #334155;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+            transition: 0.15s;
+        }
+        .leg-btn.active-leg {
+            background: var(--wb-color);
+            color: #ffffff;
+            border-color: var(--wb-color);
+            box-shadow: 0 2px 5px rgba(30, 58, 138, 0.25);
+        }
+        .leg-btn.init-link {
+            background: #e2e8f0;
+            color: #1e293b;
+            border-color: #cbd5e1;
+            flex: 1.3;
         }
         .card {
             background: white;
@@ -62,319 +123,1286 @@
             margin-bottom: 10px;
             border: 1px solid var(--border);
         }
-        .reset-btn { 
-            background: var(--danger-bg); 
-            color: var(--danger-text); 
-            border: 1px solid var(--danger-border); 
-            padding: 3px 0; 
-            width: 85px; 
+        .reset-btn {
+            background: var(--danger-bg);
+            color: var(--danger-text);
+            border: 1px solid var(--danger-border);
+            padding: 3px 0;
+            width: 85px;
             box-sizing: border-box;
-            border-radius: 4px; 
-            font-size: 0.65rem; 
-            font-weight: 700; 
-            cursor: pointer; 
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
             text-transform: uppercase;
             text-align: center;
         }
-        .clear-btn-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-        .clear-btn-container .reset-btn {
+        input:not([type="checkbox"]), select, textarea {
             width: 100%;
-            padding: 8px 0;
-            font-size: 0.75rem;
-        }
-        .tab {
-            flex: 1;
-            padding: 8px 2px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: 0.3s;
-            font-size: 0.75rem;
-            white-space: nowrap;
-        }
-        .active-tab { background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-		.tab-icon { font-size: 1.3em; vertical-align: bottom; line-height: 1; margin-left: 2px; }
-        input, select, textarea {
-            width: 100%;
-            padding: 7px 10px; 
+            padding: 7px 8px;
             border: 1px solid #ccc;
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 16px;
+            background: #fff;
         }
-        input:disabled, select:disabled { background-color: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .payload-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .payload-row label { margin-bottom: 0; flex: 1; }
-        .payload-row input { width: 85px; text-align: center; }
-        label { font-size: 0.65rem; font-weight: bold; color: #666; text-transform: uppercase; display: block; margin-bottom: 3px; }
-        .full { grid-column: span 2; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); margin-bottom: 8px; padding-bottom: 4px; }
-        .section-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; }
-        .bag-controls { display: flex; gap: 4px; margin-bottom: 6px; flex: 1; max-width: 180px; }
-        .btn-toggle { flex: 1; padding: 5px 2px; font-size: 0.65rem; font-weight: 600; border: 1px solid var(--border); background: #f1f5f9; color: #64748b; border-radius: 4px; cursor: pointer; }
-        .btn-toggle.active { background: var(--wb-color); color: white; border-color: var(--wb-color); }
-        .output-line { display: flex; justify-content: space-between; font-size: 0.9rem; padding: 4px 0; color: #000; border-bottom: 1px dashed #eee; }
-        .output-line:last-child { border-bottom: none; }
-        .out-val { font-weight: 800; color: var(--wb-color); }
-        .out-bold { font-weight: bold; color: #000; }
-        .over-limit { color: var(--danger-text) !important; }
-        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .output-box { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; font-size: 0.8rem; white-space: pre-wrap; color: #000; }
-        .copy-btn-top { padding: 5px 12px; background: var(--wb-color); color: white; border: none; border-radius: 5px; font-weight: bold; font-size: 0.7rem; cursor: pointer; text-transform: uppercase; }
-        #toast { position: fixed; bottom: 30px; background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; border-radius: 20px; display: none; z-index: 1001; }
-        .hidden { display: none !important; }
+        input[type="checkbox"] {
+            width: auto;
+            height: 16px;
+            margin: 0;
+            padding: 0;
+            cursor: pointer;
+            accent-color: var(--wb-color);
+        }
+        input:disabled, select:disabled, textarea:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+        label {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .inline-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            cursor: pointer;
+            margin: 0;
+        }
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .full {
+            grid-column: span 2;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 8px;
+            padding-bottom: 4px;
+        }
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #64748b;
+        }
+
+        /* INIT Page */
+        .init-grid-header, .init-leg-row {
+            display: grid;
+            grid-template-columns: 30px 1.45fr 0.75fr 0.75fr;
+            gap: 6px;
+            align-items: center;
+        }
+        .init-grid-header {
+            margin-bottom: 4px;
+        }
+        .init-grid-header span {
+            font-size: 0.62rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .init-leg-row {
+            margin-bottom: 7px;
+        }
+        .init-leg-row:last-child {
+            margin-bottom: 0;
+        }
+        .init-leg-num {
+            font-weight: 800;
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--wb-color);
+            background: #eef2ff;
+            border-radius: 6px;
+            padding: 8px 0;
+            border: 1px solid #c7d2fe;
+        }
+        .init-leg-row input[type="text"] {
+            text-align: center;
+            text-transform: uppercase;
+            padding: 7px 4px;
+        }
+        .init-leg-row input[type="date"] {
+            padding: 6px 4px;
+            font-size: 14px;
+        }
+        .init-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 2px;
+        }
+        .btn-proceed, .btn-clear-all {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #fff;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+        }
+        .btn-proceed {
+            background: var(--success-bg);
+        }
+        .btn-proceed:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .btn-clear-all {
+            background: var(--danger-solid);
+        }
+
+        /* W&B Page */
+        .payload-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 8px;
+        }
+        .payload-row label {
+            margin-bottom: 0;
+            flex: 1;
+        }
+        .stepper-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stepper-group input {
+            width: 58px;
+            text-align: center;
+            padding: 6px 4px;
+        }
+        .step-btn {
+            width: 32px;
+            height: 34px;
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: var(--wb-color);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            user-select: none;
+        }
+        .step-btn:active {
+            background: #e2e8f0;
+        }
+        .bag-controls {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+            flex: 1;
+            max-width: 180px;
+        }
+        .btn-toggle {
+            flex: 1;
+            padding: 5px 2px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: #f1f5f9;
+            color: #64748b;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-toggle.active {
+            background: var(--wb-color);
+            color: white;
+            border-color: var(--wb-color);
+        }
+        .output-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            color: #000;
+            border-bottom: 1px dashed #eee;
+        }
+        .output-line:last-child {
+            border-bottom: none;
+        }
+        .out-val {
+            font-weight: 800;
+            color: var(--wb-color);
+        }
+        .out-bold {
+            font-weight: bold;
+            color: #000;
+        }
+        .over-limit {
+            color: var(--danger-text) !important;
+        }
+
+        /* Condensed Leg Summary Row (TFP & BRIEF) */
+        .leg-summary-row {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .readonly-box {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 7px 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #334155;
+            text-align: center;
+        }
+
+        /* Fuel Mode Switch in TFP */
+        .fuel-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            gap: 4px;
+        }
+        .fuel-switch {
+            display: inline-flex;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .fuel-switch button {
+            border: none;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.58rem;
+            font-weight: 700;
+            padding: 2px 5px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .fuel-switch button.active {
+            background: var(--wb-color);
+            color: #fff;
+        }
+
+        /* BRIEF Tab Controls */
+        .time-pair {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .time-pair select {
+            text-align: center;
+            padding: 7px 4px;
+        }
+        .time-sep {
+            font-weight: 800;
+            color: #475569;
+            font-size: 0.85rem;
+        }
+        .taxi-group {
+            display: flex;
+            gap: 4px;
+        }
+        .taxi-btn {
+            flex: 1;
+            padding: 8px 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: #f1f5f9;
+            color: #475569;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .taxi-btn.active {
+            background: var(--wb-color);
+            color: #fff;
+            border-color: var(--wb-color);
+        }
+        .brief-field-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .brief-field-head label {
+            margin-bottom: 0;
+        }
+
+        /* Output Box */
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            gap: 10px;
+        }
+        .output-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .output-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            color: #000;
+        }
+        .copy-btn-top {
+            padding: 5px 12px;
+            background: var(--wb-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        #toast {
+            position: fixed;
+            bottom: 30px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: none;
+            z-index: 1001;
+        }
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-    <div class="tab-container">
-        <div class="tab-inner">
-            <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
-			<div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP <span class="tab-icon">✉</span></div>
-			<div id="tab-svc" class="tab" onclick="switchTab('svc')">HANDLER <span class="tab-icon">✉</span></div>
-        </div>
-    </div>
-    <div id="clear-container" class="clear-btn-container hidden">
-        <button class="reset-btn" onclick="clearData()">Clear All Data</button>
-    </div>
-    <div id="wb-form" class="content-section">
-        <div class="card">
-            <div class="section-header"><span class="section-title">VP-CTL Crew Configuration</span></div>
-            <select id="crewConfig" onchange="calculate()">
-                <option value="55285">2 Pilots 0 CC (55285)</option>
-                <option value="55485" selected>2 Pilots 1 CC (55485)</option>
-                <option value="55685">2 Pilots 2 CC (55685)</option>
-                <option value="55507">3 Pilots 0 CC (55507)</option>
-                <option value="55707">3 Pilots 1 CC (55707)</option>
-            </select>
-        </div>
+
+    <!-- ==================== INITIALIZATION PAGE ==================== -->
+    <div id="init-page">
         <div class="card">
             <div class="section-header">
-                <span class="section-title">Payload Inputs</span>
-                <button class="reset-btn" onclick="resetPayload()">Reset</button>
+                <span class="section-title">Trip Initialization</span>
             </div>
-            <div class="payload-row"><label>Adult(s) @ 203 lbs</label><input type="number" id="adult" value="0" min="0" oninput="updatePax()"></div>
-            <div class="payload-row"><label>Male(s) @ 203 lbs</label><input type="number" id="male" value="0" min="0" oninput="updatePax()"></div>
-            <div class="payload-row"><label>Female(s) @ 163 lbs</label><input type="number" id="female" value="0" min="0" oninput="updatePax()"></div>
-            <div class="payload-row"><label>Child(ren) 2-12 yo @ 77 lbs</label><input type="number" id="child" value="0" min="0" oninput="updatePax()"></div>
-            <div class="payload-row"><label>Infant(s) in own seat @ 77 lbs</label><input type="number" id="infant" value="0" min="0" oninput="updatePax()"></div>
-            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                <div class="bag-controls">
-                    <button id="btnDefault" class="btn-toggle active" onclick="setBagMode('default')">Default</button>
-                    <button id="btnManualWt" class="btn-toggle" onclick="setBagMode('manualWt')">Manual Wt.</button>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label id="bagLabel" style="font-size: 0.6rem; white-space: nowrap; margin:0;">Bag # @ 35 lbs</label>
-                    <input type="number" id="bagInput" value="0" min="0" oninput="manualBagAdjust()" style="width: 70px; text-align: center;">
-                </div>
-            </div>
-        </div>
-        <div class="card">
-            <div class="section-header"><span class="section-title">Output</span></div>
-            <div class="output-line">
-                <span>BOW: <span id="out-bow" class="out-val">--</span></span>
-                <span>Payload: <span id="out-payload" class="out-val">--</span></span>
-            </div>
-            <div class="output-line"><span>ZFW: <span id="out-zfw" class="out-val">--</span></span></div>
-            <div class="output-line"><span>Rounded Average Pax Wt: <span id="out-round" class="out-bold">--</span></span></div>
-			<div class="output-line"><span>Adjusted (initial) Bag Weight: <span id="out-adj-bag" class="out-bold">--</span> (<span id="out-initial-bag" class="out-bold">--</span>)</span></div>
-        </div>
-    </div>
-    <div id="tfp-form" class="content-section hidden">
-        <div class="card">
             <div class="input-grid">
-                <div><label>AC_ID</label><input type="text" id="t-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
-                <div><label>Trip #</label><input type="text" id="t-trip" oninput="runGen()"></div>
-                <div><label>Leg #</label><input type="number" id="t-leg" value="1" oninput="runGen()"></div>
-                <div><label>Date (UTC)</label><input type="date" id="t-date" oninput="runGen()"></div>
-                <div><label>From</label><input type="text" id="t-from" oninput="syncAndSave('from', this.value)"></div>
-                <div><label>To</label><input type="text" id="t-to" oninput="syncAndSave('to', this.value)"></div>
-                <div><label>FL</label><input type="text" id="t-fl" value="Optimal" oninput="runGen()"></div>
-                <div><label>Speed (M)</label><input type="number" id="t-speed" value="0.90" step="0.01" min="0.80" max="0.90" oninput="runGen()"></div>
-                <div><label>Landing Fuel (LBS)</label><input type="text" id="t-fuel" oninput="runGen()"></div>
                 <div>
-                    <label>PIC</label>
-                    <input list="pic-options" id="t-pic" placeholder="Select..." oninput="runGen()">
-                    <datalist id="pic-options"><option value="Mathieu"><option value="Peh"></datalist>
+                    <label for="init-acid">AC_ID</label>
+                    <input type="text" id="init-acid" value="VP-CTL" oninput="onInitFieldChange()">
                 </div>
-                <input type="hidden" id="t-bow-hidden"><input type="hidden" id="t-payload-hidden">
+                <div>
+                    <label for="init-trip">Trip #</label>
+                    <input type="text" id="init-trip" placeholder="e.g. 1234" oninput="onInitFieldChange()">
+                </div>
             </div>
         </div>
-    </div>
-    <div id="svc-form" class="content-section hidden">
+
         <div class="card">
-            <div class="input-grid">
-                <div><label>AC_ID</label><input type="text" id="s-acid" value="VP-CTL" oninput="syncAndSave('acid', this.value)"></div>
-                <div><label>Date (LCL)</label><input type="date" id="s-date" oninput="runGen()"></div>
-                <div class="full">
-                    <label>Type</label>
-                    <select id="s-type" onchange="runGen()">
-                        <option value="Arrival">Arrival (Airport → Hotel)</option>
-                        <option value="Departure">Departure (Hotel → Airport)</option>
-                        <option value="WSSL">WSSL Departure</option>
-                    </select>
+            <div class="section-header">
+                <span class="section-title">Flight Legs (UTC)</span>
+            </div>
+            <div class="init-grid-header">
+                <span>Leg</span>
+                <span>Date (UTC)</span>
+                <span>From</span>
+                <span>To</span>
+            </div>
+            <div id="init-legs-container"></div>
+        </div>
+
+        <div class="init-actions">
+            <button type="button" id="btn-proceed" class="btn-proceed" onclick="proceedToApp()" disabled>PROCEED</button>
+            <button type="button" class="btn-clear-all" onclick="clearAllInitData()">CLEAR ALL</button>
+        </div>
+    </div>
+
+    <!-- ==================== MAIN APP (SECOND PAGE) ==================== -->
+    <div id="main-app" class="hidden">
+        <div class="tab-container">
+            <div class="tab-inner">
+                <div id="tab-wb" class="tab active-tab" onclick="switchTab('wb')">W&B</div>
+                <div id="tab-tfp" class="tab" onclick="switchTab('tfp')">TFP <span class="tab-icon">✉</span></div>
+                <div id="tab-svc" class="tab" onclick="switchTab('svc')">HANDLER <span class="tab-icon">✉</span></div>
+                <div id="tab-brief" class="tab" onclick="switchTab('brief')">BRIEF</div>
+            </div>
+            <div id="leg-bar" class="leg-bar"></div>
+        </div>
+
+        <!-- W&B TAB -->
+        <div id="wb-form" class="content-section">
+            <div class="card">
+                <div class="section-header"><span class="section-title">VP-CTL Crew Configuration</span></div>
+                <select id="crewConfig" onchange="onWbInputChange()">
+                    <option value="55285">2 Pilots 0 CC (55285)</option>
+                    <option value="55485" selected>2 Pilots 1 CC (55485)</option>
+                    <option value="55685">2 Pilots 2 CC (55685)</option>
+                    <option value="55507">3 Pilots 0 CC (55507)</option>
+                    <option value="55707">3 Pilots 1 CC (55707)</option>
+                </select>
+            </div>
+            <div class="card">
+                <div class="section-header">
+                    <span class="section-title">Payload Inputs</span>
+                    <button type="button" class="reset-btn" onclick="resetPayload()">Reset</button>
                 </div>
-                <div><label id="lbl-time">ETA (LCL)</label><input type="text" id="s-time" oninput="runGen()"></div>
-                <div><label id="lbl-crew">Crews</label><input type="number" id="s-crew" value="3" oninput="runGen()"></div>
-                <div class="full"><label>Handler</label><input type="text" id="s-handler" oninput="runGen()"></div>
-                <div class="full"><label id="lbl-hotel">Hotel</label><input type="text" id="s-hotel" oninput="runGen()"></div>
-                <div class="full">
-                    <label><input type="checkbox" id="s-add-check" onchange="runGen()"> Include Additional Services</label>
-                    <textarea id="s-add-text" rows="2" oninput="runGen()" placeholder="Catering, GPU, etc..."></textarea>
+                <div class="payload-row">
+                    <label>Adult(s) @ 203 lbs</label>
+                    <div class="stepper-group">
+                        <button type="button" class="step-btn" onclick="stepPax('adult', -1)">◄</button>
+                        <input type="number" id="adult" value="0" min="0" oninput="updatePax()">
+                        <button type="button" class="step-btn" onclick="stepPax('adult', 1)">►</button>
+                    </div>
+                </div>
+                <div class="payload-row">
+                    <label>Male(s) @ 203 lbs</label>
+                    <div class="stepper-group">
+                        <button type="button" class="step-btn" onclick="stepPax('male', -1)">◄</button>
+                        <input type="number" id="male" value="0" min="0" oninput="updatePax()">
+                        <button type="button" class="step-btn" onclick="stepPax('male', 1)">►</button>
+                    </div>
+                </div>
+                <div class="payload-row">
+                    <label>Female(s) @ 163 lbs</label>
+                    <div class="stepper-group">
+                        <button type="button" class="step-btn" onclick="stepPax('female', -1)">◄</button>
+                        <input type="number" id="female" value="0" min="0" oninput="updatePax()">
+                        <button type="button" class="step-btn" onclick="stepPax('female', 1)">►</button>
+                    </div>
+                </div>
+                <div class="payload-row">
+                    <label>Child(ren) 2-12 yo @ 77 lbs</label>
+                    <div class="stepper-group">
+                        <button type="button" class="step-btn" onclick="stepPax('child', -1)">◄</button>
+                        <input type="number" id="child" value="0" min="0" oninput="updatePax()">
+                        <button type="button" class="step-btn" onclick="stepPax('child', 1)">►</button>
+                    </div>
+                </div>
+                <div class="payload-row">
+                    <label>Infant(s) in own seat @ 77 lbs</label>
+                    <div class="stepper-group">
+                        <button type="button" class="step-btn" onclick="stepPax('infant', -1)">◄</button>
+                        <input type="number" id="infant" value="0" min="0" oninput="updatePax()">
+                        <button type="button" class="step-btn" onclick="stepPax('infant', 1)">►</button>
+                    </div>
+                </div>
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                    <div class="bag-controls">
+                        <button type="button" id="btnDefault" class="btn-toggle active" onclick="setBagMode('default')">Default</button>
+                        <button type="button" id="btnManualWt" class="btn-toggle" onclick="setBagMode('manualWt')">Manual Wt.</button>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label id="bagLabel" style="font-size: 0.6rem; white-space: nowrap; margin:0;">Bag # @ 35 lbs</label>
+                        <input type="number" id="bagInput" value="0" min="0" oninput="manualBagAdjust()" style="width: 70px; text-align: center;">
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="section-header"><span class="section-title">Output</span></div>
+                <div class="output-line">
+                    <span>BOW: <span id="out-bow" class="out-val">--</span></span>
+                    <span>Payload: <span id="out-payload" class="out-val">--</span></span>
+                </div>
+                <div class="output-line"><span>ZFW: <span id="out-zfw" class="out-val">--</span></span></div>
+                <div class="output-line"><span>Rounded Average Pax Wt: <span id="out-round" class="out-bold">--</span></span></div>
+                <div class="output-line"><span>Adjusted (initial) Bag Weight: <span id="out-adj-bag" class="out-bold">--</span> (<span id="out-initial-bag" class="out-bold">--</span>)</span></div>
+            </div>
+        </div>
+
+        <!-- TFP TAB -->
+        <div id="tfp-form" class="content-section hidden">
+            <div class="card">
+                <div class="leg-summary-row">
+                    <div>
+                        <label>Date (UTC)</label>
+                        <div id="t-date-display" class="readonly-box">--</div>
+                    </div>
+                    <div>
+                        <label>From</label>
+                        <div id="t-from-display" class="readonly-box">--</div>
+                    </div>
+                    <div>
+                        <label>To</label>
+                        <div id="t-to-display" class="readonly-box">--</div>
+                    </div>
+                </div>
+                <div class="input-grid">
+                    <div>
+                        <label>FL</label>
+                        <input type="text" id="t-fl" value="Optimal" oninput="onTfpInputChange()">
+                    </div>
+                    <div>
+                        <label>Speed (M)</label>
+                        <input type="number" id="t-speed" value="0.90" step="0.01" min="0.80" max="0.90" oninput="onTfpInputChange()">
+                    </div>
+                    <div>
+                        <div class="fuel-label-row">
+                            <label id="lbl-fuel" style="margin:0;">Landing Fuel (LBS)</label>
+                            <div class="fuel-switch">
+                                <button type="button" id="btn-fuel-ldg" class="active" onclick="setFuelMode('landing')">LDG</button>
+                                <button type="button" id="btn-fuel-dep" onclick="setFuelMode('departure')">DEP</button>
+                            </div>
+                        </div>
+                        <input type="text" id="t-fuel" oninput="onTfpInputChange()">
+                    </div>
+                    <div>
+                        <label>PIC</label>
+                        <input list="pic-options" id="t-pic" placeholder="Select..." oninput="onTfpInputChange()">
+                        <datalist id="pic-options">
+                            <option value="Mathieu">
+                            <option value="Peh">
+                        </datalist>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div id="output-container" class="card hidden">
-        <div class="output-header">
-            <label style="margin:0;">Consolidated Email</label>
-            <button class="copy-btn-top" onclick="copyCombined()">Copy</button>
+
+        <!-- HANDLER TAB -->
+        <div id="svc-form" class="content-section hidden">
+            <div class="card">
+                <div class="input-grid">
+                    <div>
+                        <label>Date (LCL)</label>
+                        <input type="date" id="s-date" oninput="onSvcInputChange('date')">
+                    </div>
+                    <div>
+                        <label>Type</label>
+                        <select id="s-type" onchange="onSvcInputChange('type')">
+                            <option value="Arrival">Arrival (Airport → Hotel)</option>
+                            <option value="Departure">Departure (Hotel → Airport)</option>
+                            <option value="WSSL">WSSL Departure</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="lbl-time">ETA (LCL)</label>
+                        <input type="text" id="s-time" oninput="onSvcInputChange('time')">
+                    </div>
+                    <div>
+                        <label id="lbl-crew">Crews</label>
+                        <input type="number" id="s-crew" value="3" oninput="onSvcInputChange('crew')">
+                    </div>
+                    <div class="full">
+                        <label>Handler</label>
+                        <input type="text" id="s-handler" oninput="onSvcInputChange('handler')">
+                    </div>
+                    <div class="full">
+                        <label id="lbl-hotel">Hotel</label>
+                        <input type="text" id="s-hotel" oninput="onSvcInputChange('hotel')">
+                    </div>
+                    <div class="full">
+                        <label class="inline-check" style="margin-bottom: 5px;">
+                            <input type="checkbox" id="s-add-check" onchange="onSvcInputChange('addCheck')">
+                            Include Additional Services
+                        </label>
+                        <textarea id="s-add-text" rows="2" oninput="onSvcInputChange('addText')" placeholder="Catering, GPU, etc..."></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div id="out-combined" class="output-box"></div>
+
+        <!-- BRIEF TAB -->
+        <div id="brief-form" class="content-section hidden">
+            <div class="card">
+                <div class="leg-summary-row">
+                    <div>
+                        <label>Date (UTC)</label>
+                        <div id="b-date-display" class="readonly-box">--</div>
+                    </div>
+                    <div>
+                        <label>From</label>
+                        <div id="b-from-display" class="readonly-box">--</div>
+                    </div>
+                    <div>
+                        <label>To</label>
+                        <div id="b-to-display" class="readonly-box">--</div>
+                    </div>
+                </div>
+
+                <div class="input-grid" style="margin-bottom: 8px;">
+                    <div>
+                        <label>Flight Time</label>
+                        <div class="time-pair">
+                            <select id="b-ft-hh" onchange="onBriefInputChange()"></select>
+                            <span class="time-sep">h</span>
+                            <select id="b-ft-mm" onchange="onBriefInputChange()"></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label>Taxi</label>
+                        <div class="taxi-group">
+                            <button type="button" id="taxi-SHORT" class="taxi-btn active" onclick="setTaxi('SHORT')">SHORT</button>
+                            <button type="button" id="taxi-MEDIUM" class="taxi-btn" onclick="setTaxi('MEDIUM')">MED</button>
+                            <button type="button" id="taxi-LONG" class="taxi-btn" onclick="setTaxi('LONG')">LONG</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div>
+                        <div class="brief-field-head">
+                            <label for="b-dwx">Departure Wx</label>
+                            <label class="inline-check"><input type="checkbox" id="b-dwx-none" onchange="onBriefInputChange()"> None</label>
+                        </div>
+                        <input type="text" id="b-dwx" oninput="onBriefInputChange()">
+                    </div>
+                    <div>
+                        <div class="brief-field-head">
+                            <label for="b-ewx">Enroute Wx</label>
+                            <label class="inline-check"><input type="checkbox" id="b-ewx-none" onchange="onBriefInputChange()"> None</label>
+                        </div>
+                        <input type="text" id="b-ewx" oninput="onBriefInputChange()">
+                    </div>
+                    <div>
+                        <div class="brief-field-head">
+                            <label for="b-awx">Arrival Wx</label>
+                            <label class="inline-check"><input type="checkbox" id="b-awx-none" onchange="onBriefInputChange()"> None</label>
+                        </div>
+                        <input type="text" id="b-awx" oninput="onBriefInputChange()">
+                    </div>
+                    <div>
+                        <div class="brief-field-head">
+                            <label for="b-tb">Turbulence</label>
+                            <label class="inline-check"><input type="checkbox" id="b-tb-none" onchange="onBriefInputChange()"> None</label>
+                        </div>
+                        <input type="text" id="b-tb" oninput="onBriefInputChange()">
+                    </div>
+                    <div>
+                        <div class="brief-field-head">
+                            <label for="b-sc">Special Considerations</label>
+                            <label class="inline-check"><input type="checkbox" id="b-sc-none" onchange="onBriefInputChange()"> None</label>
+                        </div>
+                        <textarea id="b-sc" rows="2" oninput="onBriefInputChange()"></textarea>
+                    </div>
+                    <div style="padding-top: 6px; border-top: 1px solid var(--border);">
+                        <label>Reporting Time (LCL)</label>
+                        <div class="time-pair" style="max-width: 180px;">
+                            <select id="b-rep-hh" onchange="onBriefReportTimeChange()"></select>
+                            <span class="time-sep">:</span>
+                            <select id="b-rep-mm" onchange="onBriefReportTimeChange()"></select>
+                            <span class="time-sep" style="font-size: 0.75rem; margin-left: 4px;">LCL</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHARED OUTPUT CONTAINER (TFP, HANDLER, BRIEF) -->
+        <div id="output-container" class="card hidden">
+            <div class="output-header">
+                <label id="output-title" style="margin:0;">Consolidated Email</label>
+                <div class="output-header-right">
+                    <label id="all-check-wrap" class="inline-check">
+                        <input type="checkbox" id="chk-all-legs" checked onchange="onAllToggleChange()"> ALL
+                    </label>
+                    <button type="button" class="copy-btn-top" onclick="copyCombined()">Copy</button>
+                </div>
+            </div>
+            <div id="out-combined" class="output-box"></div>
+        </div>
     </div>
+
     <div id="toast">Copied!</div>
+
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js'); });
     }
-    let currentTab = 'wb';
-    let bagMode = 'default';
+
+    const STORAGE_KEY = 'crewOpsMultiLeg_v1';
+    const PAX_FIELDS = ['adult', 'male', 'female', 'child', 'infant'];
+    const PAX_WEIGHTS = { adult: 203, male: 203, female: 163, child: 77, infant: 77 };
+
+    // Runtime-only bagMode per leg (Item 1 intentionally untouched in localStorage)
+    const runtimeBagMode = { 1: 'default', 2: 'default', 3: 'default', 4: 'default', 5: 'default', 6: 'default' };
+
+    function createDefaultLegData() {
+        return {
+            wb: { crewConfig: '55485', adult: 0, male: 0, female: 0, child: 0, infant: 0, bagInput: 0 },
+            tfp: { fl: 'Optimal', speed: '0.90', fuel: '', fuelMode: 'landing', pic: '' },
+            svc: {
+                date: '', dateTouched: false,
+                type: 'Arrival', typeTouched: false,
+                time: '', crew: '3', handler: '', hotel: '',
+                addCheck: false, addText: ''
+            },
+            brief: {
+                ftHH: '00', ftMM: '00', taxi: 'SHORT',
+                dwx: '', dwxNone: false,
+                ewx: '', ewxNone: false,
+                awx: '', awxNone: false,
+                tb: '', tbNone: false,
+                sc: '', scNone: false
+            }
+        };
+    }
+
+    function createInitialState() {
+        const initLegs = {};
+        const legs = {};
+        for (let i = 1; i <= 6; i++) {
+            initLegs[i] = { date: '', from: '', to: '' };
+            legs[i] = createDefaultLegData();
+        }
+        return {
+            tripActive: false,
+            acId: 'VP-CTL',
+            trip: '',
+            selectedLeg: 1,
+            currentTab: 'wb',
+            tfpAll: true,
+            briefAll: true,
+            briefReportHH: '08',
+            briefReportMM: '00',
+            initLegs,
+            legs
+        };
+    }
+
+    let appState = createInitialState();
+
+    // Cleanup #3: Timezone-safe YYYY-MM-DD formatting
     function formatDate(dateStr) {
         if (!dateStr) return '____';
-        const d = new Date(dateStr);
+        const parts = dateStr.split('-');
+        if (parts.length !== 3) return '____';
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        if (isNaN(m) || isNaN(d) || m < 1 || m > 12) return '____';
         const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-        return `${d.getDate()} ${months[d.getMonth()]}`;
+        return `${d} ${months[m - 1]}`;
     }
+
+    function populateTimeSelects() {
+        const fill = (id, max) => {
+            const sel = document.getElementById(id);
+            sel.innerHTML = '';
+            for (let v = 0; v <= max; v++) {
+                const str = String(v).padStart(2, '0');
+                const opt = document.createElement('option');
+                opt.value = str;
+                opt.textContent = str;
+                sel.appendChild(opt);
+            }
+        };
+        fill('b-ft-hh', 14);
+        fill('b-ft-mm', 59);
+        fill('b-rep-hh', 24);
+        fill('b-rep-mm', 59);
+    }
+
+    function buildInitLegRows() {
+        const container = document.getElementById('init-legs-container');
+        container.innerHTML = '';
+        for (let i = 1; i <= 6; i++) {
+            const row = document.createElement('div');
+            row.className = 'init-leg-row';
+            row.innerHTML = `
+                <div class="init-leg-num">${i}</div>
+                <input type="date" id="init-date-${i}" oninput="onInitLegChange(${i}, 'date')">
+                <input type="text" id="init-from-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'from')">
+                <input type="text" id="init-to-${i}" maxlength="6" placeholder="ICAO" oninput="onInitLegChange(${i}, 'to')">
+            `;
+            container.appendChild(row);
+        }
+    }
+
+    function getValidLegNumbers() {
+        const valid = [];
+        for (let i = 1; i <= 6; i++) {
+            const l = appState.initLegs[i];
+            if (l && l.date.trim() !== '' && l.from.trim() !== '' && l.to.trim() !== '') {
+                valid.push(i);
+            }
+        }
+        return valid;
+    }
+
+    function updateProceedButton() {
+        const btn = document.getElementById('btn-proceed');
+        btn.disabled = getValidLegNumbers().length === 0;
+    }
+
+    function onInitFieldChange() {
+        appState.acId = document.getElementById('init-acid').value;
+        appState.trip = document.getElementById('init-trip').value;
+        saveState();
+    }
+
+    function onInitLegChange(legNum, field) {
+        const el = document.getElementById(`init-${field}-${legNum}`);
+        let val = el.value;
+        if (field === 'from' || field === 'to') {
+            val = val.toUpperCase();
+            el.value = val;
+        }
+        appState.initLegs[legNum][field] = val;
+
+        if (field === 'from') {
+            el.dataset.autoChained = 'false';
+        }
+
+        // Auto-chain FROM of next leg when TO is entered
+        if (field === 'to' && legNum < 6) {
+            const nextFromEl = document.getElementById(`init-from-${legNum + 1}`);
+            const nextVal = appState.initLegs[legNum + 1].from;
+            if (nextVal === '' || nextFromEl.dataset.autoChained === 'true') {
+                nextFromEl.value = val;
+                appState.initLegs[legNum + 1].from = val;
+                nextFromEl.dataset.autoChained = val === '' ? 'false' : 'true';
+            }
+        }
+
+        updateProceedButton();
+        saveState();
+    }
+
+    function syncInitToLegDefaults(validLegs) {
+        validLegs.forEach(legNum => {
+            const initLeg = appState.initLegs[legNum];
+            const legData = appState.legs[legNum];
+
+            // Smart default Date (LCL) on HANDLER tab unless user manually changed it
+            if (!legData.svc.dateTouched || legData.svc.date === '') {
+                legData.svc.date = initLeg.date;
+            }
+            // Auto-default WSSL on HANDLER tab if FROM is WSSL (unless user manually picked another type)
+            if (initLeg.from.trim().toUpperCase() === 'WSSL' && !legData.svc.typeTouched) {
+                legData.svc.type = 'WSSL';
+            }
+        });
+    }
+
+    function proceedToApp() {
+        const validLegs = getValidLegNumbers();
+        if (validLegs.length === 0) return;
+
+        appState.acId = document.getElementById('init-acid').value;
+        appState.trip = document.getElementById('init-trip').value;
+        syncInitToLegDefaults(validLegs);
+
+        if (!validLegs.includes(appState.selectedLeg)) {
+            appState.selectedLeg = validLegs[0];
+        }
+        appState.tripActive = true;
+        saveState();
+
+        showSecondPage();
+    }
+
+    function returnToInit() {
+        renderInitFromState();
+        document.getElementById('main-app').classList.add('hidden');
+        document.getElementById('init-page').classList.remove('hidden');
+    }
+
+    function clearAllInitData() {
+        if (!confirm("Are you sure you want to clear all data?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        appState = createInitialState();
+        for (let i = 1; i <= 6; i++) {
+            runtimeBagMode[i] = 'default';
+            const fromEl = document.getElementById(`init-from-${i}`);
+            if (fromEl) fromEl.dataset.autoChained = 'false';
+        }
+        renderInitFromState();
+        updateProceedButton();
+    }
+
+    function renderInitFromState() {
+        document.getElementById('init-acid').value = appState.acId || 'VP-CTL';
+        document.getElementById('init-trip').value = appState.trip || '';
+        for (let i = 1; i <= 6; i++) {
+            const l = appState.initLegs[i];
+            document.getElementById(`init-date-${i}`).value = l.date || '';
+            const fromEl = document.getElementById(`init-from-${i}`);
+            fromEl.value = l.from || '';
+            document.getElementById(`init-to-${i}`).value = l.to || '';
+        }
+        updateProceedButton();
+    }
+
+    function showSecondPage() {
+        document.getElementById('init-page').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        renderLegBar();
+        switchTab(appState.currentTab || 'wb');
+    }
+
+    function renderLegBar() {
+        const bar = document.getElementById('leg-bar');
+        const validLegs = getValidLegNumbers();
+        bar.innerHTML = '';
+
+        validLegs.forEach(legNum => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'leg-btn' + (appState.selectedLeg === legNum ? ' active-leg' : '');
+            btn.textContent = legNum;
+            btn.onclick = () => selectLeg(legNum);
+            bar.appendChild(btn);
+        });
+
+        const initBtn = document.createElement('button');
+        initBtn.type = 'button';
+        initBtn.className = 'leg-btn init-link';
+        initBtn.textContent = 'INIT';
+        initBtn.onclick = returnToInit;
+        bar.appendChild(initBtn);
+    }
+
+    function selectLeg(legNum) {
+        appState.selectedLeg = legNum;
+        saveState();
+        renderLegBar();
+        loadSelectedLegIntoUI();
+    }
+
     function switchTab(type) {
-        currentTab = type;
+        appState.currentTab = type;
+        saveState();
+
         document.querySelectorAll('.content-section').forEach(el => el.classList.add('hidden'));
-        document.getElementById('output-container').classList.add('hidden');
         document.querySelectorAll('.tab').forEach(el => el.classList.remove('active-tab'));
         document.getElementById('tab-' + type).classList.add('active-tab');
         document.getElementById(type + '-form').classList.remove('hidden');
+
+        const outCard = document.getElementById('output-container');
+        const outTitle = document.getElementById('output-title');
+        const allWrap = document.getElementById('all-check-wrap');
+        const allChk = document.getElementById('chk-all-legs');
+
         if (type === 'wb') {
-            document.getElementById('clear-container').classList.add('hidden');
+            outCard.classList.add('hidden');
         } else {
-            document.getElementById('clear-container').classList.remove('hidden');
-            document.getElementById('output-container').classList.remove('hidden');
+            outCard.classList.remove('hidden');
+            if (type === 'tfp') {
+                outTitle.innerText = 'Consolidated Email';
+                allWrap.classList.remove('hidden');
+                allChk.checked = appState.tfpAll;
+            } else if (type === 'svc') {
+                outTitle.innerText = 'Consolidated Email';
+                allWrap.classList.add('hidden');
+            } else if (type === 'brief') {
+                outTitle.innerText = 'Consolidated Brief';
+                allWrap.classList.remove('hidden');
+                allChk.checked = appState.briefAll;
+            }
         }
+
+        loadSelectedLegIntoUI();
+    }
+
+    function loadSelectedLegIntoUI() {
+        const legNum = appState.selectedLeg;
+        const initLeg = appState.initLegs[legNum];
+        const legData = appState.legs[legNum];
+
+        // --- W&B ---
+        document.getElementById('crewConfig').value = legData.wb.crewConfig;
+        PAX_FIELDS.forEach(f => {
+            document.getElementById(f).value = legData.wb[f];
+        });
+        document.getElementById('bagInput').value = legData.wb.bagInput;
+        applyBagModeUI(runtimeBagMode[legNum] || 'default');
+        calculateWbDisplay(legNum);
+
+        // --- TFP ---
+        document.getElementById('t-date-display').innerText = formatDate(initLeg.date);
+        document.getElementById('t-from-display').innerText = initLeg.from || '--';
+        document.getElementById('t-to-display').innerText = initLeg.to || '--';
+        document.getElementById('t-fl').value = legData.tfp.fl;
+        document.getElementById('t-speed').value = legData.tfp.speed;
+        document.getElementById('t-fuel').value = legData.tfp.fuel;
+        document.getElementById('t-pic').value = legData.tfp.pic;
+        applyFuelModeUI(legData.tfp.fuelMode);
+
+        // --- HANDLER ---
+        document.getElementById('s-date').value = legData.svc.date || '';
+        document.getElementById('s-type').value = legData.svc.type || 'Arrival';
+        document.getElementById('s-time').value = legData.svc.time || '';
+        document.getElementById('s-crew').value = legData.svc.crew ?? '3';
+        document.getElementById('s-handler').value = legData.svc.handler || '';
+        document.getElementById('s-hotel').value = legData.svc.hotel || '';
+        document.getElementById('s-add-check').checked = !!legData.svc.addCheck;
+        document.getElementById('s-add-text').value = legData.svc.addText || '';
+        updateSvcFieldStates();
+
+        // --- BRIEF ---
+        document.getElementById('b-date-display').innerText = formatDate(initLeg.date);
+        document.getElementById('b-from-display').innerText = initLeg.from || '--';
+        document.getElementById('b-to-display').innerText = initLeg.to || '--';
+        document.getElementById('b-ft-hh').value = legData.brief.ftHH || '00';
+        document.getElementById('b-ft-mm').value = legData.brief.ftMM || '00';
+        applyTaxiUI(legData.brief.taxi || 'SHORT');
+
+        const briefMap = [
+            ['dwx', 'b-dwx', 'b-dwx-none'],
+            ['ewx', 'b-ewx', 'b-ewx-none'],
+            ['awx', 'b-awx', 'b-awx-none'],
+            ['tb', 'b-tb', 'b-tb-none'],
+            ['sc', 'b-sc', 'b-sc-none']
+        ];
+        briefMap.forEach(([key, inputId, chkId]) => {
+            const isNone = !!legData.brief[key + 'None'];
+            document.getElementById(inputId).value = legData.brief[key] || '';
+            document.getElementById(chkId).checked = isNone;
+            document.getElementById(inputId).disabled = isNone;
+        });
+
+        document.getElementById('b-rep-hh').value = appState.briefReportHH || '08';
+        document.getElementById('b-rep-mm').value = appState.briefReportMM || '00';
+
         runGen();
     }
-    function setBagMode(mode) {
-        bagMode = mode;
+
+    // ==================== W&B LOGIC ====================
+    function computeWbValues(legNum) {
+        const wb = appState.legs[legNum].wb;
+        const mode = runtimeBagMode[legNum] || 'default';
+        const bow = parseInt(wb.crewConfig, 10) || 55485;
+        let paxCount = 0;
+        let totalPaxWt = 0;
+        PAX_FIELDS.forEach(f => {
+            const c = parseInt(wb[f], 10) || 0;
+            paxCount += c;
+            totalPaxWt += c * PAX_WEIGHTS[f];
+        });
+        const bagVal = parseInt(wb.bagInput, 10) || 0;
+        const totalBagWt = (mode === 'manualWt') ? bagVal : bagVal * 35;
+        const totalPayload = totalPaxWt + totalBagWt;
+        const zfw = bow + totalPayload;
+
+        let roundedWt = 0;
+        let correctedBag = 0;
+        if (paxCount > 0) {
+            roundedWt = Math.floor(totalPaxWt / paxCount);
+            correctedBag = totalPayload - (paxCount * roundedWt);
+        }
+        return { bow, paxCount, totalPaxWt, totalBagWt, totalPayload, zfw, roundedWt, correctedBag };
+    }
+
+    function calculateWbDisplay(legNum) {
+        const res = computeWbValues(legNum);
+        document.getElementById('out-bow').innerText = res.bow.toLocaleString();
+        document.getElementById('out-payload').innerText = res.totalPayload.toLocaleString();
+        const zfwDisplay = document.getElementById('out-zfw');
+        zfwDisplay.innerText = res.zfw.toLocaleString();
+        zfwDisplay.className = res.zfw > 60500 ? 'out-val over-limit' : 'out-val';
+        document.getElementById('out-round').innerText = res.roundedWt;
+        document.getElementById('out-adj-bag').innerText = res.correctedBag.toLocaleString();
+        document.getElementById('out-initial-bag').innerText = res.totalBagWt.toLocaleString();
+    }
+
+    function applyBagModeUI(mode) {
         const btnDef = document.getElementById('btnDefault');
         const btnWt = document.getElementById('btnManualWt');
         const bagLabel = document.getElementById('bagLabel');
-        const bagInput = document.getElementById('bagInput');
         btnDef.classList.remove('active');
         btnWt.classList.remove('active');
         if (mode === 'default') {
             btnDef.classList.add('active');
             bagLabel.innerText = "Baggage Qty @ 35";
-            updatePax(); 
-        } else {
+        } else if (mode === 'manualWt') {
             btnWt.classList.add('active');
             bagLabel.innerText = "Total Weight (LBS)";
-            bagInput.value = 500;
+        } else {
+            bagLabel.innerText = "Baggage Qty @ 35";
         }
-        calculate();
     }
+
+    function setBagMode(mode) {
+        const legNum = appState.selectedLeg;
+        runtimeBagMode[legNum] = mode;
+        applyBagModeUI(mode);
+        if (mode === 'default') {
+            updatePax();
+            return;
+        } else {
+            appState.legs[legNum].wb.bagInput = 500;
+            document.getElementById('bagInput').value = 500;
+        }
+        saveState();
+        calculateWbDisplay(legNum);
+    }
+
     function manualBagAdjust() {
-        if (bagMode === 'default') bagMode = 'manualQty';
-        document.getElementById('btnDefault').classList.remove('active');
-        calculate();
-    }
-    function updatePax() {
-        if (bagMode === 'default') {
-            const counts = ['adult', 'male', 'female', 'child', 'infant'].map(id => parseInt(document.getElementById(id).value) || 0);
-            document.getElementById('bagInput').value = counts.reduce((a, b) => a + b, 0);
+        const legNum = appState.selectedLeg;
+        if (runtimeBagMode[legNum] === 'default') {
+            runtimeBagMode[legNum] = 'manualQty';
+            document.getElementById('btnDefault').classList.remove('active');
         }
-        calculate();
+        appState.legs[legNum].wb.bagInput = parseInt(document.getElementById('bagInput').value, 10) || 0;
+        saveState();
+        calculateWbDisplay(legNum);
     }
+
+    function stepPax(field, delta) {
+        const input = document.getElementById(field);
+        const current = parseInt(input.value, 10) || 0;
+        const next = Math.max(0, current + delta);
+        input.value = next;
+        updatePax();
+    }
+
+    function updatePax() {
+        const legNum = appState.selectedLeg;
+        const wb = appState.legs[legNum].wb;
+        let paxSum = 0;
+        PAX_FIELDS.forEach(f => {
+            const val = Math.max(0, parseInt(document.getElementById(f).value, 10) || 0);
+            wb[f] = val;
+            paxSum += val;
+        });
+        if ((runtimeBagMode[legNum] || 'default') === 'default') {
+            wb.bagInput = paxSum;
+            document.getElementById('bagInput').value = paxSum;
+        }
+        saveState();
+        calculateWbDisplay(legNum);
+    }
+
+    function onWbInputChange() {
+        const legNum = appState.selectedLeg;
+        appState.legs[legNum].wb.crewConfig = document.getElementById('crewConfig').value;
+        saveState();
+        calculateWbDisplay(legNum);
+    }
+
     function resetPayload() {
-        ['adult', 'male', 'female', 'child', 'infant'].forEach(id => document.getElementById(id).value = 0);
+        const legNum = appState.selectedLeg;
+        PAX_FIELDS.forEach(f => {
+            document.getElementById(f).value = 0;
+            appState.legs[legNum].wb[f] = 0;
+        });
         setBagMode('default');
     }
-    function calculate() {
-        const bow = parseInt(document.getElementById('crewConfig').value);
-        const adult = parseInt(document.getElementById('adult').value) || 0;
-        const male = parseInt(document.getElementById('male').value) || 0;
-        const female = parseInt(document.getElementById('female').value) || 0;
-        const child = parseInt(document.getElementById('child').value) || 0;
-        const infant = parseInt(document.getElementById('infant').value) || 0;
-        const bagVal = parseInt(document.getElementById('bagInput').value) || 0;
-        const paxCount = adult + male + female + child + infant;
-        const totalPaxWt = (adult * 203) + (male * 203) + (female * 163) + (child * 77) + (infant * 77);
-        let totalBagWt = (bagMode === 'manualWt') ? bagVal : bagVal * 35;
-        const totalPayload = totalPaxWt + totalBagWt;
-        const zfw = bow + totalPayload;
-        document.getElementById('out-bow').innerText = bow.toLocaleString();
-        document.getElementById('out-payload').innerText = totalPayload.toLocaleString();
-        const zfwDisplay = document.getElementById('out-zfw');
-        zfwDisplay.innerText = zfw.toLocaleString();
-        zfwDisplay.className = zfw > 60500 ? 'out-val over-limit' : 'out-val';
-        document.getElementById('t-bow-hidden').value = bow;
-        document.getElementById('t-payload-hidden').value = totalPayload;
-        let roundedWt = 0, correctedBag = 0;
-        if (paxCount > 0) {
-            roundedWt = Math.floor(totalPaxWt / paxCount);
-            correctedBag = totalPayload - (paxCount * roundedWt);
-        }
-        document.getElementById('out-round').innerText = roundedWt;
-        document.getElementById('out-adj-bag').innerText = correctedBag.toLocaleString();
-		document.getElementById('out-initial-bag').innerText = totalBagWt.toLocaleString();
+
+    // ==================== TFP LOGIC ====================
+    function applyFuelModeUI(mode) {
+        const isDep = mode === 'departure';
+        document.getElementById('lbl-fuel').innerText = isDep ? 'Departure Fuel (LBS)' : 'Landing Fuel (LBS)';
+        document.getElementById('btn-fuel-ldg').classList.toggle('active', !isDep);
+        document.getElementById('btn-fuel-dep').classList.toggle('active', isDep);
+    }
+
+    function setFuelMode(mode) {
+        const legNum = appState.selectedLeg;
+        appState.legs[legNum].tfp.fuelMode = mode;
+        applyFuelModeUI(mode);
+        saveState();
         runGen();
     }
-    function syncAndSave(field, value) {
-        if (field === 'acid') {
-            document.getElementById('t-acid').value = value;
-            document.getElementById('s-acid').value = value;
-        } else if (field === 'from') {
-            const upVal = value.toUpperCase();
-            document.getElementById('t-from').value = upVal;
-            if (upVal === 'WSSL') document.getElementById('s-type').value = 'WSSL';
-        } else if (field === 'to') {
-            document.getElementById('t-to').value = value.toUpperCase();
-        }
+
+    function onTfpInputChange() {
+        const tfp = appState.legs[appState.selectedLeg].tfp;
+        tfp.fl = document.getElementById('t-fl').value;
+        tfp.speed = document.getElementById('t-speed').value;
+        tfp.fuel = document.getElementById('t-fuel').value;
+        tfp.pic = document.getElementById('t-pic').value;
+        saveState();
         runGen();
     }
-    function runGen() {
-        saveAllData();
-        if (currentTab === 'tfp') genTfp();
-        if (currentTab === 'svc') genSvc();
+
+    function buildTfpRouteString(legNums) {
+        if (legNums.length === 0) return '';
+        const segments = [];
+        let cur = `${appState.initLegs[legNums[0]].from.toUpperCase()}-${appState.initLegs[legNums[0]].to.toUpperCase()}`;
+        for (let i = 1; i < legNums.length; i++) {
+            const prevNum = legNums[i - 1];
+            const currNum = legNums[i];
+            const prevTo = appState.initLegs[prevNum].to.toUpperCase();
+            const currFrom = appState.initLegs[currNum].from.toUpperCase();
+            const currTo = appState.initLegs[currNum].to.toUpperCase();
+            if (currNum === prevNum + 1 && currFrom === prevTo) {
+                cur += `-${currTo}`;
+            } else {
+                segments.push(cur);
+                cur = `${currFrom}-${currTo}`;
+            }
+        }
+        segments.push(cur);
+        return segments.join(' & ');
     }
+
     function genTfp() {
-        const id = document.getElementById('t-acid').value || '"AC_ID"';
-        const trip = document.getElementById('t-trip').value || '"TRIP #"';
-        const leg = document.getElementById('t-leg').value || '1';
-        const date = formatDate(document.getElementById('t-date').value);
-        const from = document.getElementById('t-from').value.toUpperCase() || '"FROM"';
-        const to = document.getElementById('t-to').value.toUpperCase() || '"TO"';
-        const fl = document.getElementById('t-fl').value || '"FL"';
-        const speed = document.getElementById('t-speed').value || '0.90';
-        const bow = document.getElementById('t-bow-hidden').value;
-        const payload = document.getElementById('t-payload-hidden').value;
-        const fuel = document.getElementById('t-fuel').value || '"Landing Fuel"';
-        const pic = document.getElementById('t-pic').value || '____';
-        const subject = `TFP / ${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)`;
-        const body = `Dear Ops team,\n\nPlease send us a TFP for the following flight:\n\n${id} TRIP ${trip}-${leg} / ${from}-${to} on ${date} (UTC)\n\nPIC: ${pic}\n\nFlight Level: ${fl}\nCruise Speed: M${speed}\nBOW: ${bow} lbs\nPayload: ${payload} lbs\nLanding fuel: ${fuel} lbs\n\nThanks for your help and best regards,`;
-        document.getElementById('out-combined').innerText = subject + "\n\n" + body;
+        const acId = appState.acId || '"AC_ID"';
+        const trip = appState.trip || '"TRIP #"';
+        const validLegs = getValidLegNumbers();
+        const targetLegs = appState.tfpAll ? validLegs : [appState.selectedLeg];
+
+        let subject = '';
+        let intro = '';
+
+        if (!appState.tfpAll || targetLegs.length === 1) {
+            const l = targetLegs[0];
+            const initL = appState.initLegs[l];
+            const dt = formatDate(initL.date);
+            const from = initL.from.toUpperCase() || '"FROM"';
+            const to = initL.to.toUpperCase() || '"TO"';
+            if (!appState.tfpAll) {
+                subject = `TFP / ${acId} TRIP ${trip}-${l} / ${from}-${to} on ${dt} (UTC)`;
+                intro = `Dear Ops team,\n\nPlease send us a TFP for the following flight:`;
+            } else {
+                subject = `TFP / ${acId} TRIP ${trip} / ${from}-${to} on ${dt} (UTC)`;
+                intro = `Dear Ops team,\n\nPlease send us TFP(s) for the following flight(s):`;
+            }
+        } else {
+            const routeStr = buildTfpRouteString(targetLegs);
+            const dtFirst = formatDate(appState.initLegs[targetLegs[0]].date);
+            const dtLast = formatDate(appState.initLegs[targetLegs[targetLegs.length - 1]].date);
+            const datePart = (dtFirst === dtLast) ? `on ${dtFirst} (UTC)` : `from ${dtFirst} to ${dtLast} (UTC)`;
+            subject = `TFP / ${acId} TRIP ${trip} / ${routeStr} ${datePart}`;
+            intro = `Dear Ops team,\n\nPlease send us TFP(s) for the following flight(s):`;
+        }
+
+        const blocks = targetLegs.map(legNum => {
+            const initL = appState.initLegs[legNum];
+            const tfp = appState.legs[legNum].tfp;
+            const wbRes = computeWbValues(legNum);
+
+            const from = initL.from.toUpperCase() || '"FROM"';
+            const to = initL.to.toUpperCase() || '"TO"';
+            const dt = formatDate(initL.date);
+            const pic = tfp.pic || '____';
+            const fl = tfp.fl || '"FL"';
+            const speed = tfp.speed || '0.90';
+            const fuelLabel = tfp.fuelMode === 'departure' ? 'Departure Fuel' : 'Landing Fuel';
+            const fuelDefault = tfp.fuelMode === 'departure' ? '"Departure Fuel"' : '"Landing Fuel"';
+            const fuel = tfp.fuel || fuelDefault;
+
+            return `${trip}-${legNum} / ${from}-${to} on ${dt} (UTC)\n\nPIC: ${pic}\n\nFlight Level: ${fl}\nCruise Speed: M${speed}\nBOW: ${wbRes.bow} LBS\nPayload: ${wbRes.totalPayload} LBS\n${fuelLabel}: ${fuel} LBS`;
+        });
+
+        const body = `${intro}\n\n${blocks.join('\n\n')}\n\nThanks for your help and best regards,`;
+        document.getElementById('out-combined').innerText = `${subject}\n\n${body}`;
     }
-    function genSvc() {
-        const id = document.getElementById('s-acid').value || '"AC_ID"';
-        const from = document.getElementById('t-from').value.toUpperCase() || '"FROM"';
-        const to = document.getElementById('t-to').value.toUpperCase() || '"TO"';
-        const date = formatDate(document.getElementById('s-date').value);
+
+    // ==================== HANDLER LOGIC ====================
+    function updateSvcFieldStates() {
         const type = document.getElementById('s-type').value;
-        const handler = document.getElementById('s-handler').value || '"Handler"';
-        const time = document.getElementById('s-time').value || '"TIME"';
-        const hotel = document.getElementById('s-hotel').value || '"Hotel"';
-        const crew = document.getElementById('s-crew').value;
         const labelEl = document.getElementById('lbl-time');
         const crewIn = document.getElementById('s-crew');
         const hotelIn = document.getElementById('s-hotel');
@@ -387,6 +1415,49 @@
             crewIn.disabled = false;
             hotelIn.disabled = false;
         }
+    }
+
+    function onSvcInputChange(field) {
+        const svc = appState.legs[appState.selectedLeg].svc;
+        if (field === 'date') {
+            svc.date = document.getElementById('s-date').value;
+            svc.dateTouched = true;
+        } else if (field === 'type') {
+            svc.type = document.getElementById('s-type').value;
+            svc.typeTouched = true;
+            updateSvcFieldStates();
+        } else if (field === 'time') {
+            svc.time = document.getElementById('s-time').value;
+        } else if (field === 'crew') {
+            svc.crew = document.getElementById('s-crew').value;
+        } else if (field === 'handler') {
+            svc.handler = document.getElementById('s-handler').value;
+        } else if (field === 'hotel') {
+            svc.hotel = document.getElementById('s-hotel').value;
+        } else if (field === 'addCheck') {
+            svc.addCheck = document.getElementById('s-add-check').checked;
+        } else if (field === 'addText') {
+            svc.addText = document.getElementById('s-add-text').value;
+        }
+        saveState();
+        runGen();
+    }
+
+    function genSvc() {
+        const legNum = appState.selectedLeg;
+        const initL = appState.initLegs[legNum];
+        const svc = appState.legs[legNum].svc;
+
+        const id = appState.acId || '"AC_ID"';
+        const from = initL.from.toUpperCase() || '"FROM"';
+        const to = initL.to.toUpperCase() || '"TO"';
+        const date = formatDate(svc.date);
+        const type = svc.type || 'Arrival';
+        const handler = svc.handler || '"Handler"';
+        const time = svc.time || '"TIME"';
+        const hotel = svc.hotel || '"Hotel"';
+        const crew = svc.crew;
+
         const subject = `Service Request for ${id} // ${from}-${to} on ${date}`;
         let body = `Dear ${handler} team,\n\n`;
         if (type === 'Arrival') {
@@ -396,40 +1467,101 @@
         } else if (type === 'WSSL') {
             body += `Please note the reporting time of the crew at WSSL will be ${time} LCL on ${date}. \n\nThank you for arranging the positioning of ${id} on the departure stand accordingly. End of day positioning prior to departure date is approved as necessary. \n\n`;
         }
-        if (document.getElementById('s-add-check').checked) {
-            body += `Additional services needed will be: \n\n${document.getElementById('s-add-text').value}\n\n`;
+        if (svc.addCheck) {
+            body += `Additional services needed will be: \n\n${svc.addText}\n\n`;
         }
         body += `Thanks in advance for your support and best regards,`;
-        document.getElementById('out-combined').innerText = subject + "\n\n" + body;
+        document.getElementById('out-combined').innerText = `${subject}\n\n${body}`;
     }
-    function saveAllData() {
-        const data = {};
-        document.querySelectorAll('input, select, textarea').forEach(el => {
-            if (el.type === 'checkbox') data[el.id] = el.checked;
-            else data[el.id] = el.value;
+
+    // ==================== BRIEF LOGIC ====================
+    function applyTaxiUI(val) {
+        ['SHORT', 'MEDIUM', 'LONG'].forEach(opt => {
+            document.getElementById('taxi-' + opt).classList.toggle('active', opt === val);
         });
-        localStorage.setItem('crewOpsFinal_v5', JSON.stringify(data));
     }
-    function loadData() {
-        const saved = localStorage.getItem('crewOpsFinal_v5');
-        if (saved) {
-            const data = JSON.parse(saved);
-            for (const id in data) {
-                const el = document.getElementById(id);
-                if (el) {
-                    if (el.type === 'checkbox') el.checked = data[id];
-                    else el.value = data[id];
-                }
-            }
-        }
-        calculate(); 
+
+    function setTaxi(val) {
+        appState.legs[appState.selectedLeg].brief.taxi = val;
+        applyTaxiUI(val);
+        saveState();
+        runGen();
     }
-    function clearData() {
-        if(confirm("Are you sure you want to clear all data?")) {
-            localStorage.removeItem('crewOpsFinal_v5');
-            location.reload();
-        }
+
+    function onBriefInputChange() {
+        const brief = appState.legs[appState.selectedLeg].brief;
+        brief.ftHH = document.getElementById('b-ft-hh').value;
+        brief.ftMM = document.getElementById('b-ft-mm').value;
+
+        const map = [
+            ['dwx', 'b-dwx', 'b-dwx-none'],
+            ['ewx', 'b-ewx', 'b-ewx-none'],
+            ['awx', 'b-awx', 'b-awx-none'],
+            ['tb', 'b-tb', 'b-tb-none'],
+            ['sc', 'b-sc', 'b-sc-none']
+        ];
+        map.forEach(([key, inputId, chkId]) => {
+            const isNone = document.getElementById(chkId).checked;
+            brief[key + 'None'] = isNone;
+            brief[key] = document.getElementById(inputId).value;
+            document.getElementById(inputId).disabled = isNone;
+        });
+
+        saveState();
+        runGen();
     }
+
+    function onBriefReportTimeChange() {
+        appState.briefReportHH = document.getElementById('b-rep-hh').value;
+        appState.briefReportMM = document.getElementById('b-rep-mm').value;
+        saveState();
+        runGen();
+    }
+
+    function genBrief() {
+        const validLegs = getValidLegNumbers();
+        const targetLegs = appState.briefAll ? validLegs : [appState.selectedLeg];
+
+        const blocks = targetLegs.map(legNum => {
+            const initL = appState.initLegs[legNum];
+            const b = appState.legs[legNum].brief;
+            const wbRes = computeWbValues(legNum);
+
+            const from = initL.from.toUpperCase() || '"FROM"';
+            const to = initL.to.toUpperCase() || '"TO"';
+            const ft = `${parseInt(b.ftHH || '0', 10)}h${b.ftMM || '00'}`;
+            const tx = b.taxi || 'SHORT';
+
+            const fmtField = (val, isNone) => isNone ? 'None reported/forecasted' : (val.trim() || '____');
+            const dw = fmtField(b.dwx, b.dwxNone);
+            const ew = fmtField(b.ewx, b.ewxNone);
+            const aw = fmtField(b.awx, b.awxNone);
+            const tb = fmtField(b.tb, b.tbNone);
+            const sc = fmtField(b.sc, b.scNone);
+
+            return `Leg ${legNum} - ${from}-${to}: ${wbRes.paxCount} pax - Flight Time: ${ft}\n\nTaxi Time: ${tx}\n\nDeparture Wx: ${dw}\nEnroute Wx: ${ew}\nArrival Wx: ${aw}\n\nTurbulence: ${tb}\n\nSpecial Considerations: ${sc}`;
+        });
+
+        const repTime = `${appState.briefReportHH || '08'}:${appState.briefReportMM || '00'} LCL`;
+        const text = `Today's flight(s) briefing:\n\n${blocks.join('\n\n')}\n\nSee you at ${repTime}`;
+        document.getElementById('out-combined').innerText = text;
+    }
+
+    // ==================== SHARED OUTPUT & PERSISTENCE ====================
+    function onAllToggleChange() {
+        const checked = document.getElementById('chk-all-legs').checked;
+        if (appState.currentTab === 'tfp') appState.tfpAll = checked;
+        if (appState.currentTab === 'brief') appState.briefAll = checked;
+        saveState();
+        runGen();
+    }
+
+    function runGen() {
+        if (appState.currentTab === 'tfp') genTfp();
+        if (appState.currentTab === 'svc') genSvc();
+        if (appState.currentTab === 'brief') genBrief();
+    }
+
     function copyCombined() {
         const text = document.getElementById('out-combined').innerText;
         navigator.clipboard.writeText(text);
@@ -437,7 +1569,57 @@
         t.style.display = 'block';
         setTimeout(() => t.style.display = 'none', 1500);
     }
-    window.onload = loadData;
+
+    function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+    }
+
+    function loadState() {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            try {
+                const parsed = JSON.parse(raw);
+                const base = createInitialState();
+                appState = {
+                    ...base,
+                    ...parsed,
+                    initLegs: { ...base.initLegs, ...(parsed.initLegs || {}) },
+                    legs: { ...base.legs }
+                };
+                for (let i = 1; i <= 6; i++) {
+                    if (parsed.legs && parsed.legs[i]) {
+                        appState.legs[i] = {
+                            wb: { ...base.legs[i].wb, ...(parsed.legs[i].wb || {}) },
+                            tfp: { ...base.legs[i].tfp, ...(parsed.legs[i].tfp || {}) },
+                            svc: { ...base.legs[i].svc, ...(parsed.legs[i].svc || {}) },
+                            brief: { ...base.legs[i].brief, ...(parsed.legs[i].brief || {}) }
+                        };
+                    }
+                }
+            } catch (e) {
+                appState = createInitialState();
+            }
+        }
+    }
+
+    window.onload = () => {
+        populateTimeSelects();
+        buildInitLegRows();
+        loadState();
+        renderInitFromState();
+
+        const validLegs = getValidLegNumbers();
+        if (appState.tripActive && validLegs.length > 0) {
+            if (!validLegs.includes(appState.selectedLeg)) {
+                appState.selectedLeg = validLegs[0];
+            }
+            showSecondPage();
+        } else {
+            appState.tripActive = false;
+            document.getElementById('init-page').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
+        }
+    };
 </script>
 </body>
 </html>
