@@ -1,4 +1,4 @@
-const CACHE_NAME = 'crew-ops-v3';
+const CACHE_NAME = 'crew-ops-v4';
 const ASSETS = [
   'index.html',
   'manifest.json',
