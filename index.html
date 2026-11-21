@@ -34,7 +34,7 @@
             color: var(--text);
             overflow-x: hidden;
         }
-        #main-app {
+        #main-app, #init-page {
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -87,11 +87,13 @@
         }
         .leg-bar {
             display: flex;
+            flex-wrap: wrap;
             gap: 5px;
             margin-top: 6px;
         }
         .leg-btn {
-            flex: 1;
+            flex: 1 1 36px;
+            min-width: 34px;
             padding: 7px 2px;
             border: 1px solid #cbd5e1;
             background: #ffffff;
@@ -113,7 +115,7 @@
             background: #e2e8f0;
             color: #1e293b;
             border-color: #cbd5e1;
-            flex: 1.3;
+            flex: 1.4 1 54px;
         }
         .card {
             background: white;
@@ -247,18 +249,18 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-top: 2px;
+            margin-bottom: 10px;
         }
-        .btn-proceed, .btn-clear-all {
-            padding: 12px;
+        .btn-proceed, .btn-clear-all, .btn-share, .btn-import {
+            padding: 11px 8px;
             border: none;
             border-radius: 10px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 800;
             text-transform: uppercase;
             color: #fff;
             cursor: pointer;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
         }
         .btn-proceed {
             background: var(--success-bg);
@@ -270,6 +272,27 @@
         }
         .btn-clear-all {
             background: var(--danger-solid);
+        }
+        .btn-share {
+            background: var(--wb-color);
+        }
+        .btn-import {
+            background: #475569;
+        }
+        .share-btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .import-box {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .import-box textarea {
+            font-size: 13px;
+            font-family: monospace;
+            margin-bottom: 8px;
         }
 
         /* W&B Page */
@@ -385,10 +408,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 3px;
-            gap: 4px;
+            gap: 6px;
         }
         .fuel-switch {
             display: inline-flex;
+            flex-shrink: 0;
             border: 1px solid var(--border);
             border-radius: 4px;
             overflow: hidden;
@@ -397,9 +421,9 @@
             border: none;
             background: #f1f5f9;
             color: #64748b;
-            font-size: 0.58rem;
+            font-size: 0.6rem;
             font-weight: 700;
-            padding: 2px 5px;
+            padding: 2px 6px;
             cursor: pointer;
             text-transform: uppercase;
         }
@@ -489,12 +513,13 @@
         #toast {
             position: fixed;
             bottom: 30px;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
             display: none;
             z-index: 1001;
+            font-size: 0.85rem;
         }
         .hidden {
             display: none !important;
@@ -537,6 +562,24 @@
         <div class="init-actions">
             <button type="button" id="btn-proceed" class="btn-proceed" onclick="proceedToApp()" disabled>PROCEED</button>
             <button type="button" class="btn-clear-all" onclick="clearAllInitData()">CLEAR ALL</button>
+        </div>
+
+        <div class="card">
+            <div class="section-header">
+                <span class="section-title">Share / Load Trip</span>
+            </div>
+            <div class="share-btn-row">
+                <button type="button" class="btn-share" onclick="exportTripCode()">Export Trip Code</button>
+                <button type="button" class="btn-import" onclick="toggleImportBox()">Import Trip Code</button>
+            </div>
+            <div id="import-box" class="import-box hidden">
+                <label for="import-text">Paste shared message or CREWOPS code</label>
+                <textarea id="import-text" rows="3" placeholder="Paste CREWOPS:... code here"></textarea>
+                <div class="share-btn-row">
+                    <button type="button" class="btn-proceed" onclick="importTripCode()">Load Trip</button>
+                    <button type="button" class="btn-import" onclick="toggleImportBox(false)">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -660,7 +703,7 @@
                     </div>
                     <div>
                         <div class="fuel-label-row">
-                            <label id="lbl-fuel" style="margin:0;">Landing Fuel (LBS)</label>
+                            <label id="lbl-fuel" style="margin:0;">FUEL (LBS)</label>
                             <div class="fuel-switch">
                                 <button type="button" id="btn-fuel-ldg" class="active" onclick="setFuelMode('landing')">LDG</button>
                                 <button type="button" id="btn-fuel-dep" onclick="setFuelMode('departure')">DEP</button>
@@ -831,12 +874,14 @@
         window.addEventListener('load', () => { navigator.serviceWorker.register('service-worker.js'); });
     }
 
+    const MAX_LEGS = 9;
     const STORAGE_KEY = 'crewOpsMultiLeg_v1';
     const PAX_FIELDS = ['adult', 'male', 'female', 'child', 'infant'];
     const PAX_WEIGHTS = { adult: 203, male: 203, female: 163, child: 77, infant: 77 };
 
     // Runtime-only bagMode per leg (Item 1 intentionally untouched in localStorage)
-    const runtimeBagMode = { 1: 'default', 2: 'default', 3: 'default', 4: 'default', 5: 'default', 6: 'default' };
+    const runtimeBagMode = {};
+    for (let i = 1; i <= MAX_LEGS; i++) runtimeBagMode[i] = 'default';
 
     function createDefaultLegData() {
         return {
@@ -862,7 +907,7 @@
     function createInitialState() {
         const initLegs = {};
         const legs = {};
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= MAX_LEGS; i++) {
             initLegs[i] = { date: '', from: '', to: '' };
             legs[i] = createDefaultLegData();
         }
@@ -882,6 +927,32 @@
     }
 
     let appState = createInitialState();
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 1800);
+    }
+
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+    }
 
     // Cleanup #3: Timezone-safe YYYY-MM-DD formatting
     function formatDate(dateStr) {
@@ -916,7 +987,7 @@
     function buildInitLegRows() {
         const container = document.getElementById('init-legs-container');
         container.innerHTML = '';
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= MAX_LEGS; i++) {
             const row = document.createElement('div');
             row.className = 'init-leg-row';
             row.innerHTML = `
@@ -931,7 +1002,7 @@
 
     function getValidLegNumbers() {
         const valid = [];
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= MAX_LEGS; i++) {
             const l = appState.initLegs[i];
             if (l && l.date.trim() !== '' && l.from.trim() !== '' && l.to.trim() !== '') {
                 valid.push(i);
@@ -965,7 +1036,7 @@
         }
 
         // Auto-chain FROM of next leg when TO is entered
-        if (field === 'to' && legNum < 6) {
+        if (field === 'to' && legNum < MAX_LEGS) {
             const nextFromEl = document.getElementById(`init-from-${legNum + 1}`);
             const nextVal = appState.initLegs[legNum + 1].from;
             if (nextVal === '' || nextFromEl.dataset.autoChained === 'true') {
@@ -984,11 +1055,9 @@
             const initLeg = appState.initLegs[legNum];
             const legData = appState.legs[legNum];
 
-            // Smart default Date (LCL) on HANDLER tab unless user manually changed it
             if (!legData.svc.dateTouched || legData.svc.date === '') {
                 legData.svc.date = initLeg.date;
             }
-            // Auto-default WSSL on HANDLER tab if FROM is WSSL (unless user manually picked another type)
             if (initLeg.from.trim().toUpperCase() === 'WSSL' && !legData.svc.typeTouched) {
                 legData.svc.type = 'WSSL';
             }
@@ -1022,7 +1091,7 @@
         if (!confirm("Are you sure you want to clear all data?")) return;
         localStorage.removeItem(STORAGE_KEY);
         appState = createInitialState();
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= MAX_LEGS; i++) {
             runtimeBagMode[i] = 'default';
             const fromEl = document.getElementById(`init-from-${i}`);
             if (fromEl) fromEl.dataset.autoChained = 'false';
@@ -1034,7 +1103,7 @@
     function renderInitFromState() {
         document.getElementById('init-acid').value = appState.acId || 'VP-CTL';
         document.getElementById('init-trip').value = appState.trip || '';
-        for (let i = 1; i <= 6; i++) {
+        for (let i = 1; i <= MAX_LEGS; i++) {
             const l = appState.initLegs[i];
             document.getElementById(`init-date-${i}`).value = l.date || '';
             const fromEl = document.getElementById(`init-from-${i}`);
@@ -1044,6 +1113,145 @@
         updateProceedButton();
     }
 
+    // ==================== EXPORT / IMPORT TRIP CODE (OPTION 1) ====================
+    function encodeTripPayload(obj) {
+        const json = JSON.stringify(obj);
+        const bytes = new TextEncoder().encode(json);
+        let bin = '';
+        bytes.forEach(b => { bin += String.fromCharCode(b); });
+        return 'CREWOPS:' + btoa(bin);
+    }
+
+    function decodeTripPayload(rawText) {
+        const match = rawText.match(/CREWOPS:([A-Za-z0-9+/=]+)/);
+        if (!match) throw new Error('No CREWOPS trip code found.');
+        const bin = atob(match[1]);
+        const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+        const json = new TextDecoder().decode(bytes);
+        return JSON.parse(json);
+    }
+
+    function isLegUntouched(legNum) {
+        const initL = appState.initLegs[legNum];
+        if (initL.date || initL.from || initL.to) return false;
+        return JSON.stringify(appState.legs[legNum]) === JSON.stringify(createDefaultLegData());
+    }
+
+    function exportTripCode() {
+        appState.acId = document.getElementById('init-acid').value;
+        appState.trip = document.getElementById('init-trip').value;
+
+        const compactInit = {};
+        const compactLegs = {};
+        const routeSummary = [];
+
+        for (let i = 1; i <= MAX_LEGS; i++) {
+            if (!isLegUntouched(i)) {
+                compactInit[i] = appState.initLegs[i];
+                compactLegs[i] = appState.legs[i];
+                const l = appState.initLegs[i];
+                if (l.from && l.to) routeSummary.push(`${l.from}-${l.to}`);
+            }
+        }
+
+        const payload = {
+            v: 1,
+            acId: appState.acId,
+            trip: appState.trip,
+            selectedLeg: appState.selectedLeg,
+            tfpAll: appState.tfpAll,
+            briefAll: appState.briefAll,
+            briefReportHH: appState.briefReportHH,
+            briefReportMM: appState.briefReportMM,
+            initLegs: compactInit,
+            legs: compactLegs
+        };
+
+        const code = encodeTripPayload(payload);
+        const title = `${appState.acId || 'VP-CTL'}${appState.trip ? ' TRIP ' + appState.trip : ''}`;
+        const routes = routeSummary.length > 0 ? ` (${routeSummary.join(', ')})` : '';
+        const textToCopy = `${title}${routes}\n${code}`;
+
+        copyTextToClipboard(textToCopy);
+        showToast('Trip Code Copied!');
+    }
+
+    function toggleImportBox(forceState) {
+        const box = document.getElementById('import-box');
+        const show = (typeof forceState === 'boolean') ? forceState : box.classList.contains('hidden');
+        box.classList.toggle('hidden', !show);
+        if (show) {
+            document.getElementById('import-text').value = '';
+            document.getElementById('import-text').focus();
+        }
+    }
+
+    function importTripCode() {
+        const raw = document.getElementById('import-text').value.trim();
+        if (!raw) {
+            alert('Please paste a CREWOPS trip code first.');
+            return;
+        }
+
+        let parsed;
+        try {
+            parsed = decodeTripPayload(raw);
+            if (!parsed || typeof parsed !== 'object' || !parsed.initLegs || !parsed.legs) {
+                throw new Error('Invalid trip structure.');
+            }
+        } catch (err) {
+            alert('Could not read trip code. Make sure the full CREWOPS:... text was pasted.');
+            return;
+        }
+
+        const hasExisting = getValidLegNumbers().length > 0 || appState.trip.trim() !== '';
+        if (hasExisting && !confirm('Replace your current trip data with the imported trip?')) {
+            return;
+        }
+
+        const base = createInitialState();
+        appState = {
+            ...base,
+            acId: parsed.acId || 'VP-CTL',
+            trip: parsed.trip || '',
+            selectedLeg: parsed.selectedLeg || 1,
+            currentTab: 'wb',
+            tfpAll: parsed.tfpAll !== undefined ? !!parsed.tfpAll : true,
+            briefAll: parsed.briefAll !== undefined ? !!parsed.briefAll : true,
+            briefReportHH: parsed.briefReportHH || '08',
+            briefReportMM: parsed.briefReportMM || '00',
+            initLegs: { ...base.initLegs },
+            legs: { ...base.legs }
+        };
+
+        for (let i = 1; i <= MAX_LEGS; i++) {
+            runtimeBagMode[i] = 'default';
+            if (parsed.initLegs[i]) {
+                appState.initLegs[i] = { ...base.initLegs[i], ...parsed.initLegs[i] };
+            }
+            if (parsed.legs[i]) {
+                appState.legs[i] = {
+                    wb: { ...base.legs[i].wb, ...(parsed.legs[i].wb || {}) },
+                    tfp: { ...base.legs[i].tfp, ...(parsed.legs[i].tfp || {}) },
+                    svc: { ...base.legs[i].svc, ...(parsed.legs[i].svc || {}) },
+                    brief: { ...base.legs[i].brief, ...(parsed.legs[i].brief || {}) }
+                };
+            }
+        }
+
+        const validLegs = getValidLegNumbers();
+        appState.tripActive = validLegs.length > 0;
+        if (validLegs.length > 0 && !validLegs.includes(appState.selectedLeg)) {
+            appState.selectedLeg = validLegs[0];
+        }
+
+        saveState();
+        renderInitFromState();
+        toggleImportBox(false);
+        showToast('Trip Loaded!');
+    }
+
+    // ==================== SECOND PAGE & NAVIGATION ====================
     function showSecondPage() {
         document.getElementById('init-page').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
@@ -1303,7 +1511,6 @@
     // ==================== TFP LOGIC ====================
     function applyFuelModeUI(mode) {
         const isDep = mode === 'departure';
-        document.getElementById('lbl-fuel').innerText = isDep ? 'Departure Fuel (LBS)' : 'Landing Fuel (LBS)';
         document.getElementById('btn-fuel-ldg').classList.toggle('active', !isDep);
         document.getElementById('btn-fuel-dep').classList.toggle('active', isDep);
     }
@@ -1564,10 +1771,8 @@
 
     function copyCombined() {
         const text = document.getElementById('out-combined').innerText;
-        navigator.clipboard.writeText(text);
-        const t = document.getElementById('toast');
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 1500);
+        copyTextToClipboard(text);
+        showToast('Copied!');
     }
 
     function saveState() {
@@ -1586,7 +1791,7 @@
                     initLegs: { ...base.initLegs, ...(parsed.initLegs || {}) },
                     legs: { ...base.legs }
                 };
-                for (let i = 1; i <= 6; i++) {
+                for (let i = 1; i <= MAX_LEGS; i++) {
                     if (parsed.legs && parsed.legs[i]) {
                         appState.legs[i] = {
                             wb: { ...base.legs[i].wb, ...(parsed.legs[i].wb || {}) },
